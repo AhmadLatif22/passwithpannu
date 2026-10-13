@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "989260063157",
+    "project_id": "passwithpannu-b1b80",
+    "storage_bucket": "passwithpannu-b1b80.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:989260063157:android:0e5a205ab8882bac8779fc",
+        "android_client_info": {
+          "package_name": "com.passwithpannu.pass_with_pannu"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCpt4BI0BbMgSU5etE9ywkGQyOhSyq2O2Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
