@@ -121,6 +121,14 @@ final routerProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
+                path: '/progress',
+                builder: (_, __) => const ProgressPage(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
                 path: '/profile',
                 builder: (_, __) => const ProfilePage(),
               ),
@@ -147,7 +155,6 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/notifications',
         builder: (_, __) => const NotificationsPage(),
       ),
-      GoRoute(path: '/progress', builder: (_, __) => const ProgressPage()),
 
       // ---- admin ----
       ShellRoute(

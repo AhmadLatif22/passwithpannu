@@ -27,10 +27,7 @@ class AvailabilityRepository {
   }
 
   /// Days of [month] (yyyy-MM) that have at least one bookable slot.
-  Future<Set<String>> dates({
-    required String month,
-    required PickupLocation pickup,
-  }) async {
+  Future<Set<String>> dates({required String month, required PickupLocation pickup}) async {
     final r = await _fn.call('getAvailableDates', {
       'month': month,
       'pickupLatitude': pickup.lat,
@@ -56,30 +53,26 @@ class PlacesRepository {
     return List.generate(24, (_) => r.nextInt(16).toRadixString(16)).join();
   }
 
-  Future<List<PlaceSuggestion>> autocomplete(
-    String input,
-    String sessionToken,
-  ) async {
-    final r = await _fn.call('placesAutocomplete', {
-      'input': input,
-      'sessionToken': sessionToken,
-    });
+  Future<List<PlaceSuggestion>> autocomplete(String input, String sessionToken) async {
+    final r = await _fn.call('placesAutocomplete', {'input': input, 'sessionToken': sessionToken});
     return (r['suggestions'] as List? ?? const [])
         .map((e) => Map<String, dynamic>.from(e as Map))
-        .map(
-          (m) => PlaceSuggestion(
-            m['placeId'] as String,
-            m['description'] as String,
-          ),
-        )
+        .map((m) => PlaceSuggestion(m['placeId'] as String, m['description'] as String))
         .toList();
   }
 
+  /// Convert a long-pressed map point into a readable street address.
+  Future<PickupLocation> reverseGeocode(double lat, double lng) async {
+    final r = await _fn.call('reverseGeocodePickup', {'lat': lat, 'lng': lng});
+    return PickupLocation(
+      address: r['address'] as String,
+      lat: (r['lat'] as num).toDouble(),
+      lng: (r['lng'] as num).toDouble(),
+    );
+  }
+
   Future<PickupLocation> details(String placeId, String sessionToken) async {
-    final r = await _fn.call('placeDetails', {
-      'placeId': placeId,
-      'sessionToken': sessionToken,
-    });
+    final r = await _fn.call('placeDetails', {'placeId': placeId, 'sessionToken': sessionToken});
     return PickupLocation(
       address: r['address'] as String,
       lat: (r['lat'] as num).toDouble(),

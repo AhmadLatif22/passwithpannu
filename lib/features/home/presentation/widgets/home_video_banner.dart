@@ -82,20 +82,20 @@ class _HomeVideoBannerState extends State<HomeVideoBanner> {
             ),
 
             // Subtle dark gradient for premium appearance
-            const IgnorePointer(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.transparent,
-                      Color(0x990B0D14),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+            // const IgnorePointer(
+            //   child: DecoratedBox(
+            //     decoration: BoxDecoration(
+            //       gradient: LinearGradient(
+            //         begin: Alignment.topCenter,
+            //         end: Alignment.bottomCenter,
+            //         colors: [
+            //           Colors.transparent,
+            //           Color(0x990B0D14),
+            //         ],
+            //       ),
+            //     ),
+            //   ),
+            // ),
 
             // Branding
             // const Positioned(

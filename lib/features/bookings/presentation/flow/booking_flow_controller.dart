@@ -16,50 +16,33 @@ class BookingDraft {
   final String? dateKey;
   final Slot? slot;
 
-  bool get isComplete =>
-      lessonType != null && pickup != null && dateKey != null && slot != null;
+  bool get isComplete => lessonType != null && pickup != null && dateKey != null && slot != null;
 }
 
 class BookingFlowController extends Notifier<BookingDraft> {
   @override
   BookingDraft build() => const BookingDraft();
 
-  void setType(LessonType t) => state = BookingDraft(
-    lessonType: t,
-    pickup: state.pickup,
-    dateKey: state.dateKey,
-    slot: state.slot,
-  );
+  void setType(LessonType t) =>
+      state = BookingDraft(lessonType: t, pickup: state.pickup, dateKey: state.dateKey, slot: state.slot);
 
-  void setPickup(PickupLocation p) =>
-      state = BookingDraft(lessonType: state.lessonType, pickup: p);
+  void setPickup(PickupLocation p) => state = BookingDraft(lessonType: state.lessonType, pickup: p);
 
-  void setDate(String key) => state = BookingDraft(
-    lessonType: state.lessonType,
-    pickup: state.pickup,
-    dateKey: key,
-  );
+  void clearPickup() => state = BookingDraft(lessonType: state.lessonType);
+
+  void setDate(String key) =>
+      state = BookingDraft(lessonType: state.lessonType, pickup: state.pickup, dateKey: key);
 
   void setSlot(Slot s) => state = BookingDraft(
-    lessonType: state.lessonType,
-    pickup: state.pickup,
-    dateKey: state.dateKey,
-    slot: s,
-  );
+      lessonType: state.lessonType, pickup: state.pickup, dateKey: state.dateKey, slot: s);
 
-  void clearSlot() => state = BookingDraft(
-    lessonType: state.lessonType,
-    pickup: state.pickup,
-    dateKey: state.dateKey,
-  );
+  void clearSlot() =>
+      state = BookingDraft(lessonType: state.lessonType, pickup: state.pickup, dateKey: state.dateKey);
 
   void reset() => state = const BookingDraft();
 }
 
-final bookingFlowProvider =
-    NotifierProvider<BookingFlowController, BookingDraft>(
-      BookingFlowController.new,
-    );
+final bookingFlowProvider = NotifierProvider<BookingFlowController, BookingDraft>(BookingFlowController.new);
 
 /// Submits the draft. The server re-validates the slot inside a transaction, so a
 /// slot taken while the review screen was open fails cleanly with `slot_unavailable`.
@@ -71,11 +54,11 @@ class BookingSubmitController extends AsyncNotifier<BookingConfirmation?> {
     final d = ref.read(bookingFlowProvider);
     if (!d.isComplete) return null;
     state = const AsyncLoading();
-    state = await AsyncValue.guard(
-      () => ref
-          .read(bookingRepositoryProvider)
-          .create(lessonType: d.lessonType!, slot: d.slot!, pickup: d.pickup!),
-    );
+    state = await AsyncValue.guard(() => ref.read(bookingRepositoryProvider).create(
+          lessonType: d.lessonType!,
+          slot: d.slot!,
+          pickup: d.pickup!,
+        ));
     return state.valueOrNull;
   }
 
@@ -83,6 +66,4 @@ class BookingSubmitController extends AsyncNotifier<BookingConfirmation?> {
 }
 
 final bookingSubmitProvider =
-    AsyncNotifierProvider<BookingSubmitController, BookingConfirmation?>(
-      BookingSubmitController.new,
-    );
+    AsyncNotifierProvider<BookingSubmitController, BookingConfirmation?>(BookingSubmitController.new);

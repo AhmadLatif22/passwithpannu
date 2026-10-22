@@ -76,7 +76,7 @@ abstract final class AppTheme {
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.textPrimary,
-          side: const BorderSide(color: AppColors.brandGreen),
+          side: const BorderSide(color: AppColors.outline),
           padding: buttonPadding,
           shape: buttonShape,
           textStyle: AppTextStyles.labelLarge,
@@ -84,7 +84,7 @@ abstract final class AppTheme {
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: AppColors.brandGreen,
+          foregroundColor: AppColors.primary,
           textStyle: AppTextStyles.labelLarge,
         ),
       ),
@@ -107,7 +107,7 @@ abstract final class AppTheme {
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: AppColors.black,
-        indicatorColor: AppColors.brandGreen.withValues(alpha: 0.18),
+        indicatorColor: AppColors.primary.withValues(alpha: 0.18),
         labelTextStyle: WidgetStatePropertyAll(
           AppTextStyles.bodySmall.copyWith(color: AppColors.textPrimary),
         ),
@@ -117,8 +117,8 @@ abstract final class AppTheme {
       ),
       navigationRailTheme: NavigationRailThemeData(
         backgroundColor: AppColors.black,
-        indicatorColor: AppColors.brandGreen.withValues(alpha: 0.18),
-        selectedIconTheme: const IconThemeData(color: AppColors.brandGreen),
+        indicatorColor: AppColors.primary.withValues(alpha: 0.18),
+        selectedIconTheme: const IconThemeData(color: AppColors.primary),
         unselectedIconTheme: const IconThemeData(color: AppColors.textMuted),
       ),
       dividerTheme: const DividerThemeData(color: AppColors.outline, space: 1),

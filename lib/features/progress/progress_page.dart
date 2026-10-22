@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '../../core/theme/app_colors.dart';
 
 /// The student's public progress summary. Private instructor notes are never
 /// stored in this document and must be protected by server-side Firestore rules.
@@ -32,11 +33,7 @@ class ProgressPage extends StatelessWidget {
           }
           final d = snapshot.data!.data() ?? {};
           final hours = (d['completedHours'] as num?)?.toDouble() ?? 0;
-          final readiness =
-              ((d['testReadinessPercent'] as num?)?.toDouble() ?? 0).clamp(
-                0,
-                100,
-              );
+          final double readiness = ((d['testReadinessPercent'] as num?)?.toDouble() ?? 0).clamp(0.0, 100.0);
           Widget section(String title, String key) {
             final value = d[key];
             final text = value is List
@@ -75,7 +72,13 @@ class ProgressPage extends StatelessWidget {
                         'Instructor-assessed test readiness: ${readiness.toStringAsFixed(0)}%',
                       ),
                       const SizedBox(height: 8),
-                      LinearProgressIndicator(value: readiness / 100),
+                      LinearProgressIndicator(
+                        value: readiness / 100,
+                        color: AppColors.brandGreen,
+                        backgroundColor: AppColors.surfaceHigh,
+                        minHeight: 8,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ],
                   ),
                 ),

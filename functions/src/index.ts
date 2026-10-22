@@ -34,3 +34,5 @@ export { sendLessonReminders } from './handlers/reminders';
 export { inviteStudent } from './handlers/invitations';
 
 export { acceptStudentTerms } from './handlers/terms';
+
+export { reverseGeocodePickup } from './handlers/reverse_geocode';
