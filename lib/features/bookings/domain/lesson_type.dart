@@ -4,12 +4,12 @@ enum LessonType {
   manual;
 
   String get label => switch (this) {
-        LessonType.automatic => 'Automatic',
-        LessonType.manual => 'Manual',
-      };
+    LessonType.automatic => 'Automatic',
+    LessonType.manual => 'Manual',
+  };
 
   static LessonType fromName(String value) => LessonType.values.firstWhere(
-        (e) => e.name == value,
-        orElse: () => throw ArgumentError('Unknown LessonType: $value'),
-      );
+    (e) => e.name == value,
+    orElse: () => throw ArgumentError('Unknown LessonType: $value'),
+  );
 }

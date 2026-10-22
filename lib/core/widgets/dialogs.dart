@@ -16,9 +16,14 @@ Future<bool> confirmDialog(
       title: Text(title),
       content: Text(message),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(cancelLabel)),
+        TextButton(
+          onPressed: () => Navigator.pop(ctx, false),
+          child: Text(cancelLabel),
+        ),
         FilledButton(
-          style: destructive ? FilledButton.styleFrom(backgroundColor: AppColors.error) : null,
+          style: destructive
+              ? FilledButton.styleFrom(backgroundColor: AppColors.error)
+              : null,
           onPressed: () => Navigator.pop(ctx, true),
           child: Text(confirmLabel),
         ),
@@ -76,7 +81,9 @@ class _PromptDialog extends StatefulWidget {
 }
 
 class _PromptDialogState extends State<_PromptDialog> {
-  late final TextEditingController _c = TextEditingController(text: widget.initial);
+  late final TextEditingController _c = TextEditingController(
+    text: widget.initial,
+  );
   final _key = GlobalKey<FormState>();
 
   @override
@@ -87,45 +94,57 @@ class _PromptDialogState extends State<_PromptDialog> {
 
   @override
   Widget build(BuildContext context) => AlertDialog(
-        title: Text(widget.title),
-        content: Form(
-          key: _key,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (widget.message != null) ...[Text(widget.message!), const SizedBox(height: 12)],
-              TextFormField(
-                controller: _c,
-                maxLines: widget.maxLines,
-                minLines: 1,
-                maxLength: 500,
-                decoration: InputDecoration(labelText: widget.label),
-                validator: (v) => (v ?? '').trim().length < widget.minLength
-                    ? 'Please enter at least ${widget.minLength} characters'
-                    : null,
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Back')),
-          FilledButton(
-            style: widget.destructive ? FilledButton.styleFrom(backgroundColor: AppColors.error) : null,
-            onPressed: () {
-              if (_key.currentState!.validate()) Navigator.pop(context, _c.text.trim());
-            },
-            child: Text(widget.confirmLabel),
+    title: Text(widget.title),
+    content: Form(
+      key: _key,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (widget.message != null) ...[
+            Text(widget.message!),
+            const SizedBox(height: 12),
+          ],
+          TextFormField(
+            controller: _c,
+            maxLines: widget.maxLines,
+            minLines: 1,
+            maxLength: 500,
+            decoration: InputDecoration(labelText: widget.label),
+            validator: (v) => (v ?? '').trim().length < widget.minLength
+                ? 'Please enter at least ${widget.minLength} characters'
+                : null,
           ),
         ],
-      );
+      ),
+    ),
+    actions: [
+      TextButton(
+        onPressed: () => Navigator.pop(context),
+        child: const Text('Back'),
+      ),
+      FilledButton(
+        style: widget.destructive
+            ? FilledButton.styleFrom(backgroundColor: AppColors.error)
+            : null,
+        onPressed: () {
+          if (_key.currentState!.validate()) {
+            Navigator.pop(context, _c.text.trim());
+          }
+        },
+        child: Text(widget.confirmLabel),
+      ),
+    ],
+  );
 }
 
 void showSnack(BuildContext context, String message, {bool error = false}) {
   ScaffoldMessenger.of(context)
     ..hideCurrentSnackBar()
-    ..showSnackBar(SnackBar(
-      content: Text(message),
-      backgroundColor: error ? AppColors.error.withValues(alpha: 0.95) : null,
-    ));
+    ..showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: error ? AppColors.error.withValues(alpha: 0.95) : null,
+      ),
+    );
 }

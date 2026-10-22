@@ -25,10 +25,15 @@ class RequestsPage extends ConsumerWidget {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Requests'),
-          bottom: TabBar(tabs: [
-            Tab(text: 'Pending${pending.valueOrNull == null ? '' : ' (${pending.valueOrNull!.length})'}'),
-            const Tab(text: 'History'),
-          ]),
+          bottom: TabBar(
+            tabs: [
+              Tab(
+                text:
+                    'Pending${pending.valueOrNull == null ? '' : ' (${pending.valueOrNull!.length})'}',
+              ),
+              const Tab(text: 'History'),
+            ],
+          ),
         ),
         body: TabBarView(
           children: [
@@ -36,14 +41,27 @@ class RequestsPage extends ConsumerWidget {
               value: pending,
               onRetry: () => ref.invalidate(adminPendingRequestsProvider),
               isEmpty: (l) => l.isEmpty,
-              empty: const EmptyState(icon: Icons.inbox_outlined, title: 'No pending change requests', message: 'Student requests will show up here.'),
+              empty: const EmptyState(
+                icon: Icons.inbox_outlined,
+                title: 'No pending change requests',
+                message: 'Student requests will show up here.',
+              ),
               data: (items) => _RequestList(items: items, actionable: true),
             ),
             AsyncValueView<List<BookingRequest>>(
-              value: ref.watch(adminRecentRequestsProvider).whenData((l) => l.where((r) => r.status != RequestStatus.pending).toList()),
+              value: ref
+                  .watch(adminRecentRequestsProvider)
+                  .whenData(
+                    (l) => l
+                        .where((r) => r.status != RequestStatus.pending)
+                        .toList(),
+                  ),
               onRetry: () => ref.invalidate(adminRecentRequestsProvider),
               isEmpty: (l) => l.isEmpty,
-              empty: const EmptyState(icon: Icons.history, title: 'No handled requests yet'),
+              empty: const EmptyState(
+                icon: Icons.history,
+                title: 'No handled requests yet',
+              ),
               data: (items) => _RequestList(items: items, actionable: false),
             ),
           ],
@@ -58,11 +76,16 @@ class _RequestList extends ConsumerWidget {
   final List<BookingRequest> items;
   final bool actionable;
 
-  Future<void> _reject(BuildContext context, WidgetRef ref, BookingRequest r) async {
+  Future<void> _reject(
+    BuildContext context,
+    WidgetRef ref,
+    BookingRequest r,
+  ) async {
     final msg = await promptDialog(
       context,
       title: 'Decline this request?',
-      message: '${r.studentName}’s lesson stays exactly as booked. They’ll be notified.',
+      message:
+          '${r.studentName}’s lesson stays exactly as booked. They’ll be notified.',
       label: 'Message to the student (optional)',
       confirmLabel: 'Decline request',
       destructive: true,
@@ -70,17 +93,24 @@ class _RequestList extends ConsumerWidget {
     if (msg == null || !context.mounted) return;
     await runAdminAction(
       context,
-      (_) => ref.read(requestRepositoryProvider).resolve(requestId: r.id, approve: false, adminResponse: msg),
+      (_) => ref
+          .read(requestRepositoryProvider)
+          .resolve(requestId: r.id, approve: false, adminResponse: msg),
       success: 'Request declined. The student has been notified.',
     );
   }
 
-  Future<void> _approve(BuildContext context, WidgetRef ref, BookingRequest r) async {
+  Future<void> _approve(
+    BuildContext context,
+    WidgetRef ref,
+    BookingRequest r,
+  ) async {
     if (r.type == RequestType.cancel) {
       final msg = await promptDialog(
         context,
         title: 'Approve cancellation?',
-        message: '${r.studentName}’s lesson on ${DateTimeUtils.formatDateTime(r.currentStart)} will be cancelled and the slot reopened.',
+        message:
+            '${r.studentName}’s lesson on ${DateTimeUtils.formatDateTime(r.currentStart)} will be cancelled and the slot reopened.',
         label: 'Message to the student (optional)',
         confirmLabel: 'Approve & cancel',
         destructive: true,
@@ -88,14 +118,21 @@ class _RequestList extends ConsumerWidget {
       if (msg == null || !context.mounted) return;
       await runAdminAction(
         context,
-        (_) => ref.read(requestRepositoryProvider).resolve(requestId: r.id, approve: true, adminResponse: msg),
+        (_) => ref
+            .read(requestRepositoryProvider)
+            .resolve(requestId: r.id, approve: true, adminResponse: msg),
         success: 'Cancelled. The student has been notified.',
       );
       return;
     }
     await showDialog<void>(
       context: context,
-      builder: (_) => Dialog(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 480), child: _FinalSlotForm(request: r))),
+      builder: (_) => Dialog(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 480),
+          child: _FinalSlotForm(request: r),
+        ),
+      ),
     );
   }
 
@@ -118,29 +155,84 @@ class _RequestList extends ConsumerWidget {
                 children: [
                   Row(
                     children: [
-                      Icon(isCancel ? Icons.event_busy_outlined : Icons.update, color: AppColors.info),
+                      Icon(
+                        isCancel ? Icons.event_busy_outlined : Icons.update,
+                        color: AppColors.info,
+                      ),
                       const SizedBox(width: 10),
-                      Expanded(child: Text('${r.type.label} request · ${r.studentName}', style: t.titleMedium)),
+                      Expanded(
+                        child: Text(
+                          '${r.type.label} request · ${r.studentName}',
+                          style: t.titleMedium,
+                        ),
+                      ),
                       if (!actionable)
-                        Text(r.status.label, style: t.labelMedium?.copyWith(color: r.status == RequestStatus.approved ? AppColors.success : AppColors.error)),
+                        Text(
+                          r.status.label,
+                          style: t.labelMedium?.copyWith(
+                            color: r.status == RequestStatus.approved
+                                ? AppColors.success
+                                : AppColors.error,
+                          ),
+                        ),
                     ],
                   ),
                   const SizedBox(height: 6),
-                  InfoRow(label: 'Current', value: DateTimeUtils.formatDateTime(r.currentStart), icon: Icons.schedule),
-                  if (r.requestedStart != null) InfoRow(label: 'Preferred', value: DateTimeUtils.formatDateTime(r.requestedStart!), icon: Icons.star_outline),
-                  if ((r.lessonType ?? '').isNotEmpty) InfoRow(label: 'Lesson', value: r.lessonType!, icon: Icons.directions_car_outlined),
-                  if ((r.reason ?? '').isNotEmpty) InfoRow(label: 'Reason', value: r.reason!, icon: Icons.chat_bubble_outline),
-                  if ((r.adminResponse ?? '').isNotEmpty) InfoRow(label: 'Your reply', value: r.adminResponse!, icon: Icons.reply),
+                  InfoRow(
+                    label: 'Current',
+                    value: DateTimeUtils.formatDateTime(r.currentStart),
+                    icon: Icons.schedule,
+                  ),
+                  if (r.requestedStart != null)
+                    InfoRow(
+                      label: 'Preferred',
+                      value: DateTimeUtils.formatDateTime(r.requestedStart!),
+                      icon: Icons.star_outline,
+                    ),
+                  if ((r.lessonType ?? '').isNotEmpty)
+                    InfoRow(
+                      label: 'Lesson',
+                      value: r.lessonType!,
+                      icon: Icons.directions_car_outlined,
+                    ),
+                  if ((r.reason ?? '').isNotEmpty)
+                    InfoRow(
+                      label: 'Reason',
+                      value: r.reason!,
+                      icon: Icons.chat_bubble_outline,
+                    ),
+                  if ((r.adminResponse ?? '').isNotEmpty)
+                    InfoRow(
+                      label: 'Your reply',
+                      value: r.adminResponse!,
+                      icon: Icons.reply,
+                    ),
                   const SizedBox(height: 8),
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
                     children: [
                       if (actionable) ...[
-                        FilledButton.icon(onPressed: () => _approve(context, ref, r), icon: const Icon(Icons.check, size: 18), label: Text(isCancel ? 'Approve cancellation' : 'Approve & choose time')),
-                        OutlinedButton.icon(onPressed: () => _reject(context, ref, r), icon: const Icon(Icons.close, size: 18), label: const Text('Decline')),
+                        FilledButton.icon(
+                          onPressed: () => _approve(context, ref, r),
+                          icon: const Icon(Icons.check, size: 18),
+                          label: Text(
+                            isCancel
+                                ? 'Approve cancellation'
+                                : 'Approve & choose time',
+                          ),
+                        ),
+                        OutlinedButton.icon(
+                          onPressed: () => _reject(context, ref, r),
+                          icon: const Icon(Icons.close, size: 18),
+                          label: const Text('Decline'),
+                        ),
                       ],
-                      TextButton(onPressed: () => context.go('/admin/bookings/${r.bookingId}'), child: const Text('View booking')),
+                      TextButton(
+                        onPressed: () =>
+                            context.go('/admin/bookings/${r.bookingId}'),
+                        child: const Text('View booking'),
+                      ),
                     ],
                   ),
                 ],
@@ -162,7 +254,8 @@ class _FinalSlotForm extends ConsumerStatefulWidget {
 }
 
 class _FinalSlotFormState extends ConsumerState<_FinalSlotForm> {
-  late DateTime _slot = widget.request.requestedStart ?? widget.request.currentStart;
+  late DateTime _slot =
+      widget.request.requestedStart ?? widget.request.currentStart;
   final _msg = TextEditingController();
   bool _busy = false;
 
@@ -177,7 +270,15 @@ class _FinalSlotFormState extends ConsumerState<_FinalSlotForm> {
     final r = widget.request;
     final ok = await runAdminAction(
       context,
-      (o) => ref.read(requestRepositoryProvider).resolve(requestId: r.id, approve: true, adminResponse: _msg.text, newStart: _slot, override: o),
+      (o) => ref
+          .read(requestRepositoryProvider)
+          .resolve(
+            requestId: r.id,
+            approve: true,
+            adminResponse: _msg.text,
+            newStart: _slot,
+            override: o,
+          ),
       success: 'Lesson moved. The student has been notified.',
     );
     if (!mounted) return;
@@ -200,9 +301,11 @@ class _FinalSlotFormState extends ConsumerState<_FinalSlotForm> {
         children: [
           Text('Approve change', style: t.headlineMedium),
           const SizedBox(height: 6),
-          Text('${r.studentName} is currently booked for ${DateTimeUtils.formatDateTime(r.currentStart)}.'
-              '${r.requestedStart != null ? '\nThey asked for ${DateTimeUtils.formatDateTime(r.requestedStart!)}.' : ''}',
-              style: t.bodyMedium),
+          Text(
+            '${r.studentName} is currently booked for ${DateTimeUtils.formatDateTime(r.currentStart)}.'
+            '${r.requestedStart != null ? '\nThey asked for ${DateTimeUtils.formatDateTime(r.requestedStart!)}.' : ''}',
+            style: t.bodyMedium,
+          ),
           const SizedBox(height: AppSpacing.md),
           Text('Final lesson time', style: t.titleSmall),
           const SizedBox(height: 6),
@@ -210,17 +313,36 @@ class _FinalSlotFormState extends ConsumerState<_FinalSlotForm> {
             onPressed: _busy
                 ? null
                 : () async {
-                    final d = await pickBusinessDateTime(context, initial: _slot);
+                    final d = await pickBusinessDateTime(
+                      context,
+                      initial: _slot,
+                    );
                     if (d != null) setState(() => _slot = d);
                   },
             icon: const Icon(Icons.event_outlined),
-            label: Text('${DateTimeUtils.formatLongDate(_slot)} · ${DateTimeUtils.formatRange(_slot, _slot.add(const Duration(hours: 2)))}'),
+            label: Text(
+              '${DateTimeUtils.formatLongDate(_slot)} · ${DateTimeUtils.formatRange(_slot, _slot.add(const Duration(hours: 2)))}',
+            ),
           ),
           const SizedBox(height: 14),
-          TextField(controller: _msg, maxLines: 2, maxLength: 300, decoration: const InputDecoration(labelText: 'Message to the student (optional)')),
+          TextField(
+            controller: _msg,
+            maxLines: 2,
+            maxLength: 300,
+            decoration: const InputDecoration(
+              labelText: 'Message to the student (optional)',
+            ),
+          ),
           const SizedBox(height: AppSpacing.sm),
-          PrimaryButton(label: 'Approve & move lesson', isLoading: _busy, onPressed: _confirm),
-          TextButton(onPressed: _busy ? null : () => Navigator.pop(context), child: const Text('Back')),
+          PrimaryButton(
+            label: 'Approve & move lesson',
+            isLoading: _busy,
+            onPressed: _confirm,
+          ),
+          TextButton(
+            onPressed: _busy ? null : () => Navigator.pop(context),
+            child: const Text('Back'),
+          ),
         ],
       ),
     );

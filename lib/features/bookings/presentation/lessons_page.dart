@@ -20,7 +20,12 @@ class LessonsPage extends ConsumerWidget {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('My lessons'),
-          bottom: const TabBar(tabs: [Tab(text: 'Upcoming'), Tab(text: 'Previous')]),
+          bottom: const TabBar(
+            tabs: [
+              Tab(text: 'Upcoming'),
+              Tab(text: 'Previous'),
+            ],
+          ),
         ),
         body: TabBarView(
           children: [
@@ -52,7 +57,11 @@ class LessonsPage extends ConsumerWidget {
 }
 
 class _List extends ConsumerWidget {
-  const _List({required this.provider, required this.upcoming, required this.empty});
+  const _List({
+    required this.provider,
+    required this.upcoming,
+    required this.empty,
+  });
   final Provider<AsyncValue<List<Booking>>> provider;
   final bool upcoming;
   final Widget empty;
@@ -74,7 +83,9 @@ class _List extends ConsumerWidget {
             child: LessonCard(
               booking: items[i],
               onTap: () => context.push('/lesson/${items[i].id}'),
-              footer: upcoming ? LessonActions(booking: items[i], compact: true) : null,
+              footer: upcoming
+                  ? LessonActions(booking: items[i], compact: true)
+                  : null,
             ),
           ),
         ),

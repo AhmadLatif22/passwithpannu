@@ -5,7 +5,12 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/brand_logo.dart';
 
 class AuthScaffold extends StatelessWidget {
-  const AuthScaffold({super.key, required this.title, this.subtitle, required this.children});
+  const AuthScaffold({
+    super.key,
+    required this.title,
+    this.subtitle,
+    required this.children,
+  });
   final String title;
   final String? subtitle;
   final List<Widget> children;
@@ -21,12 +26,21 @@ class AuthScaffold extends StatelessWidget {
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(AppSpacing.lg),
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: AppBreakpoints.formWidth),
+                constraints: const BoxConstraints(
+                  maxWidth: AppBreakpoints.formWidth,
+                ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Center(child: BrandLogo(height: 84)),
+                    Center(
+                      child: Image.asset(
+                        'assets/images/pwp_logo.png',
+                        width: 170,
+                        height: 110,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
                     const SizedBox(height: AppSpacing.xl),
                     Text(title, style: t.headlineMedium),
                     if (subtitle != null) ...[
@@ -53,19 +67,21 @@ class FormError extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        margin: const EdgeInsets.only(bottom: AppSpacing.md),
-        padding: const EdgeInsets.all(AppSpacing.md),
-        decoration: BoxDecoration(
-          color: AppColors.error.withValues(alpha: 0.14),
-          borderRadius: BorderRadius.circular(AppRadius.sm),
-          border: Border.all(color: AppColors.error.withValues(alpha: 0.5)),
+    margin: const EdgeInsets.only(bottom: AppSpacing.md),
+    padding: const EdgeInsets.all(AppSpacing.md),
+    decoration: BoxDecoration(
+      color: AppColors.error.withValues(alpha: 0.14),
+      borderRadius: BorderRadius.circular(AppRadius.sm),
+      border: Border.all(color: AppColors.error.withValues(alpha: 0.5)),
+    ),
+    child: Row(
+      children: [
+        const Icon(Icons.error_outline, color: AppColors.error, size: 20),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(message, style: Theme.of(context).textTheme.bodyMedium),
         ),
-        child: Row(
-          children: [
-            const Icon(Icons.error_outline, color: AppColors.error, size: 20),
-            const SizedBox(width: 10),
-            Expanded(child: Text(message, style: Theme.of(context).textTheme.bodyMedium)),
-          ],
-        ),
-      );
+      ],
+    ),
+  );
 }

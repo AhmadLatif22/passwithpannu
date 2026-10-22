@@ -5,7 +5,7 @@ import 'app_colors.dart';
 import 'app_text_styles.dart';
 
 /// Single Material 3 theme shared by the student app and the admin dashboard.
-/// The brand is dark (black / charcoal / purple), so there is one dark theme.
+/// Blue-led dark theme with restrained purple highlights and green statuses.
 abstract final class AppTheme {
   static ThemeData get dark {
     const scheme = ColorScheme.dark(
@@ -13,8 +13,8 @@ abstract final class AppTheme {
       onPrimary: AppColors.textPrimary,
       primaryContainer: AppColors.primaryDark,
       onPrimaryContainer: AppColors.textPrimary,
-      secondary: AppColors.accent,
-      onSecondary: AppColors.black,
+      secondary: AppColors.brandGreen,
+      onSecondary: AppColors.textPrimary,
       surface: AppColors.charcoal,
       onSurface: AppColors.textPrimary,
       surfaceContainerHighest: AppColors.surfaceHigh,
@@ -22,8 +22,9 @@ abstract final class AppTheme {
       error: AppColors.error,
     );
 
-    final buttonShape =
-        RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.sm));
+    final buttonShape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(AppRadius.sm),
+    );
     const buttonPadding = EdgeInsets.symmetric(horizontal: 24, vertical: 16);
 
     return ThemeData(
@@ -75,7 +76,7 @@ abstract final class AppTheme {
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.textPrimary,
-          side: const BorderSide(color: AppColors.accent),
+          side: const BorderSide(color: AppColors.brandGreen),
           padding: buttonPadding,
           shape: buttonShape,
           textStyle: AppTextStyles.labelLarge,
@@ -83,45 +84,59 @@ abstract final class AppTheme {
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: AppColors.accent,
+          foregroundColor: AppColors.brandGreen,
           textStyle: AppTextStyles.labelLarge,
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.surface,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
         labelStyle: AppTextStyles.bodyMedium,
-        hintStyle: AppTextStyles.bodyMedium.copyWith(color: AppColors.textMuted),
+        hintStyle: AppTextStyles.bodyMedium.copyWith(
+          color: AppColors.textMuted,
+        ),
         border: _inputBorder(AppColors.outline),
         enabledBorder: _inputBorder(AppColors.outline),
-        focusedBorder: _inputBorder(AppColors.accent, width: 1.6),
+        focusedBorder: _inputBorder(AppColors.primary, width: 1.6),
         errorBorder: _inputBorder(AppColors.error),
         focusedErrorBorder: _inputBorder(AppColors.error, width: 1.6),
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: AppColors.black,
-        indicatorColor: AppColors.primary,
-        labelTextStyle:
-            WidgetStatePropertyAll(AppTextStyles.bodySmall.copyWith(color: AppColors.textPrimary)),
-        iconTheme: const WidgetStatePropertyAll(IconThemeData(color: AppColors.textPrimary)),
+        indicatorColor: AppColors.brandGreen.withValues(alpha: 0.18),
+        labelTextStyle: WidgetStatePropertyAll(
+          AppTextStyles.bodySmall.copyWith(color: AppColors.textPrimary),
+        ),
+        iconTheme: const WidgetStatePropertyAll(
+          IconThemeData(color: AppColors.textPrimary),
+        ),
       ),
-      navigationRailTheme: const NavigationRailThemeData(
+      navigationRailTheme: NavigationRailThemeData(
         backgroundColor: AppColors.black,
-        indicatorColor: AppColors.primary,
-        selectedIconTheme: IconThemeData(color: AppColors.textPrimary),
-        unselectedIconTheme: IconThemeData(color: AppColors.textMuted),
+        indicatorColor: AppColors.brandGreen.withValues(alpha: 0.18),
+        selectedIconTheme: const IconThemeData(color: AppColors.brandGreen),
+        unselectedIconTheme: const IconThemeData(color: AppColors.textMuted),
       ),
       dividerTheme: const DividerThemeData(color: AppColors.outline, space: 1),
       snackBarTheme: SnackBarThemeData(
         backgroundColor: AppColors.surfaceHigh,
-        contentTextStyle: AppTextStyles.bodyMedium.copyWith(color: AppColors.textPrimary),
+        contentTextStyle: AppTextStyles.bodyMedium.copyWith(
+          color: AppColors.textPrimary,
+        ),
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.sm)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.sm),
+        ),
       ),
       dialogTheme: DialogThemeData(
         backgroundColor: AppColors.surface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.md),
+        ),
         titleTextStyle: AppTextStyles.titleLarge,
         contentTextStyle: AppTextStyles.bodyMedium,
       ),

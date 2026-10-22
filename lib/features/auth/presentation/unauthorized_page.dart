@@ -10,12 +10,12 @@ class UnauthorizedPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) => Scaffold(
-        body: EmptyState(
-          icon: Icons.lock_outline,
-          title: 'Instructor access only',
-          message: 'This account doesn’t have access to the admin dashboard.',
-          actionLabel: 'Sign out',
-          onAction: () => ref.read(authControllerProvider.notifier).signOut(),
-        ),
-      );
+    body: EmptyState(
+      icon: Icons.lock_outline,
+      title: 'Instructor access only',
+      message: 'This account doesn’t have access to the admin dashboard.',
+      actionLabel: 'Sign out',
+      onAction: () => ref.read(authControllerProvider.notifier).signOut(),
+    ),
+  );
 }

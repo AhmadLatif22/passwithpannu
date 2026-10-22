@@ -31,13 +31,25 @@ class StepTime extends ConsumerWidget {
         Text('Choose a start time', style: t.headlineMedium),
         const SizedBox(height: 4),
         Text(DateTimeUtils.formatPlainShort(date), style: t.bodyMedium),
-        if (notice != null) ...[const SizedBox(height: 10), Text(notice!, style: t.bodyMedium?.copyWith(color: const Color(0xFFF5A623)))],
+        if (notice != null) ...[
+          const SizedBox(height: 10),
+          Text(
+            notice!,
+            style: t.bodyMedium?.copyWith(color: const Color(0xFFF5A623)),
+          ),
+        ],
         const SizedBox(height: AppSpacing.md),
         slots.when(
-          loading: () => const SizedBox(height: 260, child: SkeletonList(count: 3, height: 64)),
+          loading: () => const SizedBox(
+            height: 260,
+            child: SkeletonList(count: 3, height: 64),
+          ),
           error: (e, _) => SizedBox(
             height: 260,
-            child: ErrorView(message: AppFailure.from(e).message, onRetry: () => ref.invalidate(availableSlotsProvider(query))),
+            child: ErrorView(
+              message: AppFailure.from(e).message,
+              onRetry: () => ref.invalidate(availableSlotsProvider(query)),
+            ),
           ),
           data: (list) => list.isEmpty
               ? const SizedBox(
@@ -57,7 +69,8 @@ class StepTime extends ConsumerWidget {
                         start: s.start,
                         end: s.end,
                         selected: draft.slot == s,
-                        onTap: () => ref.read(bookingFlowProvider.notifier).setSlot(s),
+                        onTap: () =>
+                            ref.read(bookingFlowProvider.notifier).setSlot(s),
                       ),
                   ],
                 ),

@@ -33,23 +33,35 @@ class _AdminBookingsPageState extends ConsumerState<AdminBookingsPage> {
 
   List<Booking> _apply(List<Booking> all) {
     final now = DateTime.now();
-    var list = all.where((b) => switch (_filter) {
-          _Filter.upcoming => b.isUpcoming(now),
-          _Filter.requests => b.status == BookingStatus.changeRequested || b.status == BookingStatus.cancellationRequested,
-          _Filter.completed => b.status == BookingStatus.completed,
-          _Filter.cancelled => b.status == BookingStatus.cancelled || b.status == BookingStatus.rejected,
-          _Filter.all => true,
-        });
+    var list = all.where(
+      (b) => switch (_filter) {
+        _Filter.upcoming => b.isUpcoming(now),
+        _Filter.requests =>
+          b.status == BookingStatus.changeRequested ||
+              b.status == BookingStatus.cancellationRequested,
+        _Filter.completed => b.status == BookingStatus.completed,
+        _Filter.cancelled =>
+          b.status == BookingStatus.cancelled ||
+              b.status == BookingStatus.rejected,
+        _Filter.all => true,
+      },
+    );
     final q = _query.trim().toLowerCase();
     if (q.isNotEmpty) {
-      list = list.where((b) =>
-          b.studentName.toLowerCase().contains(q) ||
-          b.studentEmail.toLowerCase().contains(q) ||
-          b.reference.toLowerCase().contains(q) ||
-          b.pickupAddress.toLowerCase().contains(q));
+      list = list.where(
+        (b) =>
+            b.studentName.toLowerCase().contains(q) ||
+            b.studentEmail.toLowerCase().contains(q) ||
+            b.reference.toLowerCase().contains(q) ||
+            b.pickupAddress.toLowerCase().contains(q),
+      );
     }
     final out = list.toList();
-    out.sort((a, b) => _filter == _Filter.upcoming || _filter == _Filter.requests ? a.start.compareTo(b.start) : b.start.compareTo(a.start));
+    out.sort(
+      (a, b) => _filter == _Filter.upcoming || _filter == _Filter.requests
+          ? a.start.compareTo(b.start)
+          : b.start.compareTo(a.start),
+    );
     return out;
   }
 
@@ -65,12 +77,20 @@ class _AdminBookingsPageState extends ConsumerState<AdminBookingsPage> {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.md, AppSpacing.md, 0),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.md,
+              AppSpacing.md,
+              AppSpacing.md,
+              0,
+            ),
             child: Column(
               children: [
                 TextField(
                   onChanged: (v) => setState(() => _query = v),
-                  decoration: const InputDecoration(hintText: 'Search name, email, reference or address', prefixIcon: Icon(Icons.search)),
+                  decoration: const InputDecoration(
+                    hintText: 'Search name, email, reference or address',
+                    prefixIcon: Icon(Icons.search),
+                  ),
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 SingleChildScrollView(
@@ -80,7 +100,11 @@ class _AdminBookingsPageState extends ConsumerState<AdminBookingsPage> {
                       for (final f in _Filter.values)
                         Padding(
                           padding: const EdgeInsets.only(right: 8),
-                          child: ChoiceChip(label: Text(_labels[f]!), selected: _filter == f, onSelected: (_) => setState(() => _filter = f)),
+                          child: ChoiceChip(
+                            label: Text(_labels[f]!),
+                            selected: _filter == f,
+                            onSelected: (_) => setState(() => _filter = f),
+                          ),
                         ),
                     ],
                   ),
@@ -93,15 +117,24 @@ class _AdminBookingsPageState extends ConsumerState<AdminBookingsPage> {
               value: ref.watch(adminBookingsProvider).whenData(_apply),
               onRetry: () => ref.invalidate(adminBookingsProvider),
               isEmpty: (l) => l.isEmpty,
-              empty: const EmptyState(icon: Icons.event_note_outlined, title: 'No bookings found', message: 'Try another filter or search.'),
+              empty: const EmptyState(
+                icon: Icons.event_note_outlined,
+                title: 'No bookings found',
+                message: 'Try another filter or search.',
+              ),
               data: (items) => ListView.separated(
                 padding: const EdgeInsets.all(AppSpacing.md),
                 itemCount: items.length,
-                separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
+                separatorBuilder: (_, __) =>
+                    const SizedBox(height: AppSpacing.sm),
                 itemBuilder: (_, i) => Center(
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 820),
-                    child: LessonCard(booking: items[i], showStudent: true, onTap: () => context.go('/admin/bookings/${items[i].id}')),
+                    child: LessonCard(
+                      booking: items[i],
+                      showStudent: true,
+                      onTap: () => context.go('/admin/bookings/${items[i].id}'),
+                    ),
                   ),
                 ),
               ),

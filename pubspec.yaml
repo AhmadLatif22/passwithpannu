@@ -22,6 +22,7 @@ dependencies:
   url_launcher: ^6.3.1
   google_maps_flutter: ^2.18.1
   geolocator: ^14.1.1
+  video_player: ^2.14.1
 
 dev_dependencies:
   flutter_test:
@@ -34,23 +35,24 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/
+    - assets/videos/driving_intro.mp4
 
 # Drop your logo at assets/images/logo.png (transparent PNG, ~1024px), then run:
 #   dart run flutter_native_splash:create && dart run flutter_launcher_icons
 flutter_native_splash:
   color: "#000000"
-  image: assets/images/passwithpannu_logo2.png
+  image: assets/images/pwp_logo.png
   color_dark: "#000000"
-  image_dark: assets/images/passwithpannu_logo2.png
+  image_dark: assets/images/pwp_logo.png
   android_12:
     color: "#000000"
-    image: assets/images/passwithpannu_logo2.png
+    image: assets/images/pwp_logo.png
   web: false
 
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: assets/images/passwithpannu_logo2.png
+  image_path: assets/images/pwp_logo.png
   adaptive_icon_background: "#000000"
-  adaptive_icon_foreground: assets/images/passwithpannu_logo2.png
+  adaptive_icon_foreground: assets/images/pwp_logo.png
   remove_alpha_ios: true

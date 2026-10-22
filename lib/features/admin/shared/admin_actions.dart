@@ -24,7 +24,8 @@ Future<bool> runAdminAction(
     final go = await confirmDialog(
       context,
       title: 'Scheduling warning',
-      message: '${e.message}\n\nAs the instructor you can override this. Continue anyway?',
+      message:
+          '${e.message}\n\nAs the instructor you can override this. Continue anyway?',
       confirmLabel: 'Override',
       cancelLabel: 'Go back',
       destructive: true,
@@ -42,8 +43,13 @@ Future<bool> runAdminAction(
 }
 
 /// Picks a business-time date + time and returns it as a UTC instant.
-Future<DateTime?> pickBusinessDateTime(BuildContext context, {DateTime? initial}) async {
-  final base = initial != null ? DateTimeUtils.toBusiness(initial) : DateTimeUtils.toBusiness(DateTime.now().add(const Duration(days: 1)));
+Future<DateTime?> pickBusinessDateTime(
+  BuildContext context, {
+  DateTime? initial,
+}) async {
+  final base = initial != null
+      ? DateTimeUtils.toBusiness(initial)
+      : DateTimeUtils.toBusiness(DateTime.now().add(const Duration(days: 1)));
   final date = await showDatePicker(
     context: context,
     initialDate: DateTime(base.year, base.month, base.day),
@@ -53,15 +59,27 @@ Future<DateTime?> pickBusinessDateTime(BuildContext context, {DateTime? initial}
   if (date == null || !context.mounted) return null;
   final time = await showTimePicker(
     context: context,
-    initialTime: TimeOfDay(hour: initial != null ? base.hour : 10, minute: initial != null ? base.minute : 0),
+    initialTime: TimeOfDay(
+      hour: initial != null ? base.hour : 10,
+      minute: initial != null ? base.minute : 0,
+    ),
   );
   if (time == null) return null;
-  return DateTimeUtils.fromBusinessParts(date.year, date.month, date.day, time.hour, time.minute);
+  return DateTimeUtils.fromBusinessParts(
+    date.year,
+    date.month,
+    date.day,
+    time.hour,
+    time.minute,
+  );
 }
 
 Future<void> openUrl(BuildContext context, Uri uri) async {
   final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
-  if (!ok && context.mounted) showSnack(context, 'Couldn’t open that on this device.', error: true);
+  if (!ok && context.mounted) {
+    showSnack(context, 'Couldn’t open that on this device.', error: true);
+  }
 }
 
-Uri mapsUri(double lat, double lng) => Uri.parse('https://www.google.com/maps/search/?api=1&query=$lat,$lng');
+Uri mapsUri(double lat, double lng) =>
+    Uri.parse('https://www.google.com/maps/search/?api=1&query=$lat,$lng');

@@ -25,7 +25,9 @@ class StepLessonType extends ConsumerWidget {
               width: 52,
               height: 52,
               decoration: BoxDecoration(
-                color: on ? AppColors.black : AppColors.primary.withValues(alpha: 0.2),
+                color: on
+                    ? AppColors.black
+                    : AppColors.primary.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(AppRadius.sm),
               ),
               child: Icon(icon, color: AppColors.accent, size: 28),
@@ -41,7 +43,10 @@ class StepLessonType extends ConsumerWidget {
                 ],
               ),
             ),
-            Icon(on ? Icons.radio_button_checked : Icons.radio_button_off, color: on ? AppColors.accent : AppColors.textMuted),
+            Icon(
+              on ? Icons.radio_button_checked : Icons.radio_button_off,
+              color: on ? AppColors.accent : AppColors.textMuted,
+            ),
           ],
         ),
       );
@@ -52,11 +57,22 @@ class StepLessonType extends ConsumerWidget {
       children: [
         Text('What would you like to learn in?', style: t.headlineMedium),
         const SizedBox(height: 4),
-        Text('Every lesson is 2 hours with your DVSA approved instructor.', style: t.bodyMedium),
+        Text(
+          'Every lesson is 2 hours with your DVSA approved instructor.',
+          style: t.bodyMedium,
+        ),
         const SizedBox(height: AppSpacing.lg),
-        option(LessonType.manual, Icons.settings_outlined, 'Learn with a gearbox and clutch control.'),
+        option(
+          LessonType.manual,
+          Icons.settings_outlined,
+          'Learn with a gearbox and clutch control.',
+        ),
         const SizedBox(height: AppSpacing.md),
-        option(LessonType.automatic, Icons.directions_car_outlined, 'Simple, relaxed driving with no clutch.'),
+        option(
+          LessonType.automatic,
+          Icons.directions_car_outlined,
+          'Simple, relaxed driving with no clutch.',
+        ),
       ],
     );
   }

@@ -13,12 +13,18 @@ import 'request_providers.dart';
 
 /// Student request form. Submitting creates a REQUEST only: the lesson stays exactly as booked
 /// until the instructor decides.
-Future<void> showRequestSheet(BuildContext context, Booking booking, RequestType type) {
+Future<void> showRequestSheet(
+  BuildContext context,
+  Booking booking,
+  RequestType type,
+) {
   return showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
     backgroundColor: AppColors.surface,
-    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg))),
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
+    ),
     builder: (_) => _RequestSheet(booking: booking, type: type),
   );
 }
@@ -60,14 +66,20 @@ class _RequestSheetState extends ConsumerState<_RequestSheet> {
   }
 
   Future<void> _pickTime() async {
-    final t = await showTimePicker(context: context, initialTime: _time ?? const TimeOfDay(hour: 10, minute: 0));
+    final t = await showTimePicker(
+      context: context,
+      initialTime: _time ?? const TimeOfDay(hour: 10, minute: 0),
+    );
     if (t != null) setState(() => _time = t);
   }
 
   Future<void> _submit() async {
     if (!_form.currentState!.validate()) return;
     if ((_date == null) != (_time == null) && !_isCancel) {
-      setState(() => _error = 'Choose both a preferred date and time, or leave both empty.');
+      setState(
+        () => _error =
+            'Choose both a preferred date and time, or leave both empty.',
+      );
       return;
     }
     setState(() {
@@ -77,9 +89,17 @@ class _RequestSheetState extends ConsumerState<_RequestSheet> {
     try {
       DateTime? preferred;
       if (!_isCancel && _date != null && _time != null) {
-        preferred = DateTimeUtils.fromBusinessParts(_date!.year, _date!.month, _date!.day, _time!.hour, _time!.minute);
+        preferred = DateTimeUtils.fromBusinessParts(
+          _date!.year,
+          _date!.month,
+          _date!.day,
+          _time!.hour,
+          _time!.minute,
+        );
       }
-      await ref.read(requestRepositoryProvider).create(
+      await ref
+          .read(requestRepositoryProvider)
+          .create(
             bookingId: widget.booking.id,
             type: widget.type,
             reason: _reason.text,
@@ -87,7 +107,10 @@ class _RequestSheetState extends ConsumerState<_RequestSheet> {
           );
       if (!mounted) return;
       Navigator.pop(context);
-      showSnack(context, 'Request sent. Your lesson stays as booked until it’s reviewed.');
+      showSnack(
+        context,
+        'Request sent. Your lesson stays as booked until it’s reviewed.',
+      );
     } catch (e) {
       if (mounted) {
         setState(() {
@@ -102,7 +125,12 @@ class _RequestSheetState extends ConsumerState<_RequestSheet> {
   Widget build(BuildContext context) {
     final t = Theme.of(context).textTheme;
     return Padding(
-      padding: EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.lg, AppSpacing.lg, MediaQuery.of(context).viewInsets.bottom + AppSpacing.lg),
+      padding: EdgeInsets.fromLTRB(
+        AppSpacing.lg,
+        AppSpacing.lg,
+        AppSpacing.lg,
+        MediaQuery.of(context).viewInsets.bottom + AppSpacing.lg,
+      ),
       child: SingleChildScrollView(
         child: Form(
           key: _form,
@@ -110,7 +138,10 @@ class _RequestSheetState extends ConsumerState<_RequestSheet> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(_isCancel ? 'Request cancellation' : 'Request a change', style: t.headlineMedium),
+              Text(
+                _isCancel ? 'Request cancellation' : 'Request a change',
+                style: t.headlineMedium,
+              ),
               const SizedBox(height: 6),
               Text(
                 'Lesson: ${DateTimeUtils.formatDateTime(widget.booking.start)}. '
@@ -127,7 +158,11 @@ class _RequestSheetState extends ConsumerState<_RequestSheet> {
                       child: OutlinedButton.icon(
                         onPressed: _busy ? null : _pickDate,
                         icon: const Icon(Icons.event_outlined, size: 18),
-                        label: Text(_date == null ? 'Date' : DateTimeUtils.formatPlainShort(_date!)),
+                        label: Text(
+                          _date == null
+                              ? 'Date'
+                              : DateTimeUtils.formatPlainShort(_date!),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -135,7 +170,9 @@ class _RequestSheetState extends ConsumerState<_RequestSheet> {
                       child: OutlinedButton.icon(
                         onPressed: _busy ? null : _pickTime,
                         icon: const Icon(Icons.schedule, size: 18),
-                        label: Text(_time == null ? 'Time' : _time!.format(context)),
+                        label: Text(
+                          _time == null ? 'Time' : _time!.format(context),
+                        ),
                       ),
                     ),
                   ],
@@ -146,15 +183,32 @@ class _RequestSheetState extends ConsumerState<_RequestSheet> {
                 controller: _reason,
                 maxLines: 3,
                 maxLength: 500,
-                decoration: InputDecoration(labelText: _isCancel ? 'Reason (required)' : 'Message (optional)'),
-                validator: _isCancel ? (v) => (v ?? '').trim().length < 5 ? 'Please add a short reason' : null : null,
+                decoration: InputDecoration(
+                  labelText: _isCancel
+                      ? 'Reason (required)'
+                      : 'Message (optional)',
+                ),
+                validator: _isCancel
+                    ? (v) => (v ?? '').trim().length < 5
+                          ? 'Please add a short reason'
+                          : null
+                    : null,
               ),
               if (_error != null)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 12),
-                  child: Text(_error!, style: t.bodyMedium?.copyWith(color: AppColors.error)),
+                  child: Text(
+                    _error!,
+                    style: t.bodyMedium?.copyWith(color: AppColors.error),
+                  ),
                 ),
-              PrimaryButton(label: _isCancel ? 'Send cancellation request' : 'Send change request', isLoading: _busy, onPressed: _submit),
+              PrimaryButton(
+                label: _isCancel
+                    ? 'Send cancellation request'
+                    : 'Send change request',
+                isLoading: _busy,
+                onPressed: _submit,
+              ),
             ],
           ),
         ),

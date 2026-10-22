@@ -10,11 +10,19 @@ class StudentRepository {
       .collection('users')
       .where('role', isEqualTo: 'student')
       .snapshots()
-      .map((s) => s.docs.map(AppUser.fromDoc).toList()
-        ..sort((a, b) => a.fullName.toLowerCase().compareTo(b.fullName.toLowerCase())));
+      .map(
+        (s) => s.docs.map(AppUser.fromDoc).toList()
+          ..sort(
+            (a, b) =>
+                a.fullName.toLowerCase().compareTo(b.fullName.toLowerCase()),
+          ),
+      );
 
-  Stream<AppUser?> watchStudent(String uid) =>
-      _db.collection('users').doc(uid).snapshots().map((d) => d.exists ? AppUser.fromDoc(d) : null);
+  Stream<AppUser?> watchStudent(String uid) => _db
+      .collection('users')
+      .doc(uid)
+      .snapshots()
+      .map((d) => d.exists ? AppUser.fromDoc(d) : null);
 
   Future<void> setActive(String uid, bool active) => _db
       .collection('users')

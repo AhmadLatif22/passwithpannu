@@ -7,7 +7,10 @@ enum RequestType {
   cancel;
 
   String get label => this == RequestType.cancel ? 'Cancellation' : 'Change';
-  static RequestType fromName(String v) => RequestType.values.firstWhere((e) => e.name == v, orElse: () => RequestType.reschedule);
+  static RequestType fromName(String v) => RequestType.values.firstWhere(
+    (e) => e.name == v,
+    orElse: () => RequestType.reschedule,
+  );
 }
 
 enum RequestStatus {
@@ -16,11 +19,14 @@ enum RequestStatus {
   rejected;
 
   String get label => switch (this) {
-        RequestStatus.pending => 'Pending',
-        RequestStatus.approved => 'Approved',
-        RequestStatus.rejected => 'Declined',
-      };
-  static RequestStatus fromName(String v) => RequestStatus.values.firstWhere((e) => e.name == v, orElse: () => RequestStatus.pending);
+    RequestStatus.pending => 'Pending',
+    RequestStatus.approved => 'Approved',
+    RequestStatus.rejected => 'Declined',
+  };
+  static RequestStatus fromName(String v) => RequestStatus.values.firstWhere(
+    (e) => e.name == v,
+    orElse: () => RequestStatus.pending,
+  );
 }
 
 class BookingRequest {

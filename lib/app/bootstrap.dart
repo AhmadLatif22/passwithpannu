@@ -22,11 +22,15 @@ Future<void> bootstrap({required AppMode mode}) async {
     final host = Env.emulatorHost;
     await FirebaseAuth.instance.useAuthEmulator(host, 9099);
     FirebaseFirestore.instance.useFirestoreEmulator(host, 8080);
-    FirebaseFunctions.instanceFor(region: AppConstants.functionsRegion).useFunctionsEmulator(host, 5001);
+    FirebaseFunctions.instanceFor(
+      region: AppConstants.functionsRegion,
+    ).useFunctionsEmulator(host, 5001);
   }
 
-  runApp(ProviderScope(
-    overrides: [appModeProvider.overrideWithValue(mode)],
-    child: const PassWithPannuApp(),
-  ));
+  runApp(
+    ProviderScope(
+      overrides: [appModeProvider.overrideWithValue(mode)],
+      child: const PassWithPannuApp(),
+    ),
+  );
 }

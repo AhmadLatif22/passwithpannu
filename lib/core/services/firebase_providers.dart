@@ -9,22 +9,20 @@ import '../constants/app_constants.dart';
 import '../errors/app_failure.dart';
 
 final firebaseAuthProvider = Provider<FirebaseAuth>(
-      (_) => FirebaseAuth.instance,
+  (_) => FirebaseAuth.instance,
 );
 
 final firestoreProvider = Provider<FirebaseFirestore>(
-      (_) => FirebaseFirestore.instance,
+  (_) => FirebaseFirestore.instance,
 );
 
 final firebaseMessagingProvider = Provider<FirebaseMessaging>(
-      (_) => FirebaseMessaging.instance,
+  (_) => FirebaseMessaging.instance,
 );
 
 final functionsClientProvider = Provider<FunctionsClient>(
-      (_) => FunctionsClient(
-    FirebaseFunctions.instanceFor(
-      region: AppConstants.functionsRegion,
-    ),
+  (_) => FunctionsClient(
+    FirebaseFunctions.instanceFor(region: AppConstants.functionsRegion),
   ),
 );
 
@@ -41,9 +39,9 @@ class FunctionsClient {
   final FirebaseFunctions _functions;
 
   Future<Map<String, dynamic>> call(
-      String name, [
-        Map<String, dynamic>? data,
-      ]) async {
+    String name, [
+    Map<String, dynamic>? data,
+  ]) async {
     try {
       final user = FirebaseAuth.instance.currentUser;
 
@@ -52,15 +50,12 @@ class FunctionsClient {
           '[FunctionsClient] $name failed: FirebaseAuth.currentUser is null',
         );
 
-        throw const AppFailure(
-          'unauthenticated',
-          'Please sign in again.',
-        );
+        throw const AppFailure('unauthenticated', 'Please sign in again.');
       }
 
       debugPrint(
         '[FunctionsClient] Calling $name as '
-            '${user.email ?? user.uid}',
+        '${user.email ?? user.uid}',
       );
 
       // Force-refresh Firebase ID token.
@@ -70,13 +65,11 @@ class FunctionsClient {
       // made with an expired/stale token.
       final token = await user.getIdToken(true);
 
-      debugPrint(
-        '[FunctionsClient] UID: ${user.uid}',
-      );
+      debugPrint('[FunctionsClient] UID: ${user.uid}');
 
       debugPrint(
         '[FunctionsClient] Token available: '
-            '${token != null && token.isNotEmpty}',
+        '${token != null && token.isNotEmpty}',
       );
 
       final callable = _functions.httpsCallable(name);
@@ -93,55 +86,33 @@ class FunctionsClient {
 
       return <String, dynamic>{};
     } on FirebaseFunctionsException catch (e, stackTrace) {
-      debugPrint(
-        '[FunctionsClient] Function "$name" failed',
-      );
+      debugPrint('[FunctionsClient] Function "$name" failed');
 
-      debugPrint(
-        '[FunctionsClient] Code: ${e.code}',
-      );
+      debugPrint('[FunctionsClient] Code: ${e.code}');
 
-      debugPrint(
-        '[FunctionsClient] Message: ${e.message}',
-      );
+      debugPrint('[FunctionsClient] Message: ${e.message}');
 
-      debugPrint(
-        '[FunctionsClient] Details: ${e.details}',
-      );
+      debugPrint('[FunctionsClient] Details: ${e.details}');
 
-      debugPrintStack(
-        stackTrace: stackTrace,
-      );
+      debugPrintStack(stackTrace: stackTrace);
 
       throw AppFailure.from(e);
     } on FirebaseAuthException catch (e, stackTrace) {
-      debugPrint(
-        '[FunctionsClient] Auth error while calling "$name"',
-      );
+      debugPrint('[FunctionsClient] Auth error while calling "$name"');
 
-      debugPrint(
-        '[FunctionsClient] Code: ${e.code}',
-      );
+      debugPrint('[FunctionsClient] Code: ${e.code}');
 
-      debugPrint(
-        '[FunctionsClient] Message: ${e.message}',
-      );
+      debugPrint('[FunctionsClient] Message: ${e.message}');
 
-      debugPrintStack(
-        stackTrace: stackTrace,
-      );
+      debugPrintStack(stackTrace: stackTrace);
 
       throw AppFailure.from(e);
     } on AppFailure {
       rethrow;
     } catch (e, stackTrace) {
-      debugPrint(
-        '[FunctionsClient] Unexpected error calling "$name": $e',
-      );
+      debugPrint('[FunctionsClient] Unexpected error calling "$name": $e');
 
-      debugPrintStack(
-        stackTrace: stackTrace,
-      );
+      debugPrintStack(stackTrace: stackTrace);
 
       throw AppFailure.from(e);
     }

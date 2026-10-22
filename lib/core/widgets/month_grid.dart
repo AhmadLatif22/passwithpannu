@@ -5,7 +5,12 @@ import '../theme/app_colors.dart';
 /// Monday-first month calendar. The caller decides how each day looks, so the same
 /// grid serves student date picking and the admin month diary.
 class MonthGrid extends StatelessWidget {
-  const MonthGrid({super.key, required this.month, required this.dayBuilder, this.cellHeight = 56});
+  const MonthGrid({
+    super.key,
+    required this.month,
+    required this.dayBuilder,
+    this.cellHeight = 56,
+  });
   final DateTime month; // any date inside the month to show
   final Widget Function(DateTime day) dayBuilder;
   final double cellHeight;
@@ -27,7 +32,12 @@ class MonthGrid extends StatelessWidget {
                 child: Center(
                   child: Padding(
                     padding: const EdgeInsets.only(bottom: 6),
-                    child: Text(w, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textMuted)),
+                    child: Text(
+                      w,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: AppColors.textMuted,
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -42,10 +52,14 @@ class MonthGrid extends StatelessWidget {
                   Expanded(
                     child: () {
                       final dayNum = r * 7 + c - lead + 1;
-                      if (dayNum < 1 || dayNum > days) return const SizedBox.shrink();
+                      if (dayNum < 1 || dayNum > days) {
+                        return const SizedBox.shrink();
+                      }
                       return Padding(
                         padding: const EdgeInsets.all(2),
-                        child: dayBuilder(DateTime(month.year, month.month, dayNum)),
+                        child: dayBuilder(
+                          DateTime(month.year, month.month, dayNum),
+                        ),
                       );
                     }(),
                   ),

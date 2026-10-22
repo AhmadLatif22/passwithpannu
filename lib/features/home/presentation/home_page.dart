@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'widgets/home_video_banner.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/date_time_utils.dart';
@@ -22,7 +23,9 @@ class HomePage extends ConsumerWidget {
 
   String _greeting() {
     final h = DateTimeUtils.toBusiness(DateTime.now()).hour;
-    return h < 12 ? 'Good morning' : (h < 18 ? 'Good afternoon' : 'Good evening');
+    return h < 12
+        ? 'Good morning'
+        : (h < 18 ? 'Good afternoon' : 'Good evening');
   }
 
   @override
@@ -31,16 +34,23 @@ class HomePage extends ConsumerWidget {
     final name = ref.watch(currentUserProvider).valueOrNull?.firstName;
     final unread = ref.watch(unreadNotificationsProvider);
     final upcoming = ref.watch(upcomingBookingsProvider);
-    final history = ref.watch(bookingHistoryProvider).valueOrNull ?? const <Booking>[];
+    final history =
+        ref.watch(bookingHistoryProvider).valueOrNull ?? const <Booking>[];
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(name == null || name.isEmpty ? _greeting() : '${_greeting()}, $name'),
+        title: Text(
+          name == null || name.isEmpty ? _greeting() : '${_greeting()}, $name',
+        ),
         actions: [
           IconButton(
             tooltip: 'Notifications',
             onPressed: () => context.push('/notifications'),
-            icon: Badge(isLabelVisible: unread > 0, label: Text('$unread'), child: const Icon(Icons.notifications_outlined)),
+            icon: Badge(
+              isLabelVisible: unread > 0,
+              label: Text('$unread'),
+              child: const Icon(Icons.notifications_outlined),
+            ),
           ),
         ],
       ),
@@ -56,12 +66,24 @@ class HomePage extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    if (next != null) _NextLesson(booking: next) else const _BookCta(),
+                    // Premium introductory video
+                    const HomeVideoBanner(),
+
+                    const SizedBox(height: AppSpacing.md),
+
+                    if (next != null)
+                      _NextLesson(booking: next)
+                    else
+                      const _BookCta(),
                     const SizedBox(height: AppSpacing.md),
                     Row(
                       children: [
                         Expanded(
-                          child: PrimaryButton(label: 'Book lesson', icon: Icons.add, onPressed: () => context.go('/book')),
+                          child: PrimaryButton(
+                            label: 'Book lesson',
+                            icon: Icons.add,
+                            onPressed: () => context.go('/book'),
+                          ),
                         ),
                         const SizedBox(width: 10),
                         Expanded(
@@ -74,11 +96,20 @@ class HomePage extends ConsumerWidget {
                       ],
                     ),
                     if (rest.isNotEmpty) ...[
-                      SectionTitle('Coming up', trailing: TextButton(onPressed: () => context.go('/lessons'), child: const Text('See all'))),
+                      SectionTitle(
+                        'Coming up',
+                        trailing: TextButton(
+                          onPressed: () => context.go('/lessons'),
+                          child: const Text('See all'),
+                        ),
+                      ),
                       for (final b in rest)
                         Padding(
                           padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                          child: LessonCard(booking: b, onTap: () => context.push('/lesson/${b.id}')),
+                          child: LessonCard(
+                            booking: b,
+                            onTap: () => context.push('/lesson/${b.id}'),
+                          ),
                         ),
                     ],
                     if (history.isNotEmpty) ...[
@@ -89,9 +120,17 @@ class HomePage extends ConsumerWidget {
                           children: [
                             const Icon(Icons.history, color: AppColors.accent),
                             const SizedBox(width: 12),
-                            Expanded(child: Text('Previous lessons', style: t.titleSmall)),
+                            Expanded(
+                              child: Text(
+                                'Previous lessons',
+                                style: t.titleSmall,
+                              ),
+                            ),
                             Text('${history.length}', style: t.titleMedium),
-                            const Icon(Icons.chevron_right, color: AppColors.textMuted),
+                            const Icon(
+                              Icons.chevron_right,
+                              color: AppColors.textMuted,
+                            ),
                           ],
                         ),
                       ),
@@ -122,18 +161,38 @@ class _NextLesson extends StatelessWidget {
         children: [
           Row(
             children: [
-              Expanded(child: Text('Your next lesson', style: t.labelMedium?.copyWith(color: AppColors.accent))),
+              Expanded(
+                child: Text(
+                  'Your next lesson',
+                  style: t.labelMedium?.copyWith(color: AppColors.accent),
+                ),
+              ),
               BookingStatusChip(status: booking.status),
             ],
           ),
           const SizedBox(height: 6),
           Text('${booking.lessonType.label} lesson', style: t.headlineMedium),
           const SizedBox(height: 2),
-          Text(DateTimeUtils.untilLabel(booking.start, DateTime.now()), style: t.bodyMedium?.copyWith(color: AppColors.accent)),
+          Text(
+            DateTimeUtils.untilLabel(booking.start, DateTime.now()),
+            style: t.bodyMedium?.copyWith(color: AppColors.accent),
+          ),
           const SizedBox(height: AppSpacing.sm),
-          InfoRow(label: 'Date', value: DateTimeUtils.formatLongDate(booking.start), icon: Icons.event_outlined),
-          InfoRow(label: 'Time', value: DateTimeUtils.formatRange(booking.start, booking.end), icon: Icons.schedule),
-          InfoRow(label: 'Pickup', value: booking.pickupAddress, icon: Icons.place_outlined),
+          InfoRow(
+            label: 'Date',
+            value: DateTimeUtils.formatLongDate(booking.start),
+            icon: Icons.event_outlined,
+          ),
+          InfoRow(
+            label: 'Time',
+            value: DateTimeUtils.formatRange(booking.start, booking.end),
+            icon: Icons.schedule,
+          ),
+          InfoRow(
+            label: 'Pickup',
+            value: booking.pickupAddress,
+            icon: Icons.place_outlined,
+          ),
           const SizedBox(height: AppSpacing.sm),
           LessonActions(booking: booking, compact: true),
         ],
@@ -154,13 +213,24 @@ class _BookCta extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.directions_car_filled_outlined, color: AppColors.accent, size: 34),
+          const Icon(
+            Icons.directions_car_filled_outlined,
+            color: AppColors.accent,
+            size: 34,
+          ),
           const SizedBox(height: AppSpacing.sm),
           Text('Book Your Next Lesson', style: t.headlineMedium),
           const SizedBox(height: 4),
-          Text('Pick manual or automatic and choose a time that suits you. Calm, patient tuition.', style: t.bodyMedium),
+          Text(
+            'Pick manual or automatic and choose a time that suits you. Calm, patient tuition.',
+            style: t.bodyMedium,
+          ),
           const SizedBox(height: AppSpacing.md),
-          PrimaryButton(label: 'Book a lesson', expand: false, onPressed: () => context.go('/book')),
+          PrimaryButton(
+            label: 'Book a lesson',
+            expand: false,
+            onPressed: () => context.go('/book'),
+          ),
         ],
       ),
     );

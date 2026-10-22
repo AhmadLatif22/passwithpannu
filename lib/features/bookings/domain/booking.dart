@@ -59,7 +59,8 @@ class Booking {
     final start = tsToUtc(d['startDateTime']) ?? DateTime.now().toUtc();
     return Booking(
       id: doc.id,
-      reference: (d['reference'] as String?) ?? doc.id.substring(0, 6).toUpperCase(),
+      reference:
+          (d['reference'] as String?) ?? doc.id.substring(0, 6).toUpperCase(),
       studentId: (d['studentId'] as String?) ?? '',
       studentName: (d['studentName'] as String?) ?? '',
       studentEmail: (d['studentEmail'] as String?) ?? '',
@@ -83,7 +84,11 @@ class Booking {
 
 /// Returned by the createBooking callable.
 class BookingConfirmation {
-  const BookingConfirmation({required this.bookingId, required this.reference, required this.status});
+  const BookingConfirmation({
+    required this.bookingId,
+    required this.reference,
+    required this.status,
+  });
   final String bookingId;
   final String reference;
   final BookingStatus status;

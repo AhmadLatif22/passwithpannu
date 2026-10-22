@@ -31,7 +31,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   Future<void> _submit() async {
     if (!_form.currentState!.validate()) return;
     FocusScope.of(context).unfocus();
-    await ref.read(authControllerProvider.notifier).signIn(_email.text, _password.text);
+    await ref
+        .read(authControllerProvider.notifier)
+        .signIn(_email.text, _password.text);
     // On success the router redirects automatically when the session changes.
   }
 
@@ -41,7 +43,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     final isAdminApp = ref.watch(appModeProvider) == AppMode.admin;
     return AuthScaffold(
       title: isAdminApp ? 'Instructor sign in' : 'Welcome back',
-      subtitle: isAdminApp ? 'Pass With Pannu admin dashboard' : 'Sign in to book and manage your lessons',
+      subtitle: isAdminApp
+          ? 'Pass With Pannu admin dashboard'
+          : 'Sign in to book and manage your lessons',
       children: [
         Form(
           key: _form,
@@ -49,13 +53,17 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                if (auth.hasError) FormError(AppFailure.from(auth.error!).message),
+                if (auth.hasError)
+                  FormError(AppFailure.from(auth.error!).message),
                 TextFormField(
                   controller: _email,
                   keyboardType: TextInputType.emailAddress,
                   autofillHints: const [AutofillHints.email],
                   textInputAction: TextInputAction.next,
-                  decoration: const InputDecoration(labelText: 'Email', prefixIcon: Icon(Icons.mail_outline)),
+                  decoration: const InputDecoration(
+                    labelText: 'Email',
+                    prefixIcon: Icon(Icons.mail_outline),
+                  ),
                   validator: Validators.email,
                 ),
                 const SizedBox(height: 14),
@@ -70,7 +78,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     prefixIcon: const Icon(Icons.lock_outline),
                     suffixIcon: IconButton(
                       tooltip: _obscure ? 'Show password' : 'Hide password',
-                      icon: Icon(_obscure ? Icons.visibility_outlined : Icons.visibility_off_outlined),
+                      icon: Icon(
+                        _obscure
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
+                      ),
                       onPressed: () => setState(() => _obscure = !_obscure),
                     ),
                   ),
@@ -87,23 +99,15 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   ),
                 ),
                 const SizedBox(height: 4),
-                PrimaryButton(label: 'Sign in', isLoading: auth.isLoading, onPressed: _submit),
-                if (!isAdminApp) ...[
-                  const SizedBox(height: 18),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text('New learner?', style: Theme.of(context).textTheme.bodyMedium),
-                      TextButton(
-                        onPressed: () {
-                          ref.read(authControllerProvider.notifier).clearError();
-                          context.push('/register');
-                        },
-                        child: const Text('Create an account'),
-                      ),
-                    ],
-                  ),
-                ],
+                PrimaryButton(
+                  label: 'Sign in',
+                  isLoading: auth.isLoading,
+                  onPressed: _submit,
+                ),
+                const SizedBox(height: 14),
+                const Center(
+                  child: Text('Access is by instructor invitation only.'),
+                ),
               ],
             ),
           ),

@@ -24,37 +24,99 @@ class _StudentsPageState extends ConsumerState<StudentsPage> {
   @override
   Widget build(BuildContext context) {
     final t = Theme.of(context).textTheme;
-    final bookings = ref.watch(adminBookingsProvider).valueOrNull ?? const <Booking>[];
+    final bookings =
+        ref.watch(adminBookingsProvider).valueOrNull ?? const <Booking>[];
     final now = DateTime.now();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Students')),
+      appBar: AppBar(
+        title: const Text('Students'),
+        actions: [
+          IconButton(
+            tooltip: 'Invite student',
+            icon: const Icon(Icons.person_add_alt_1),
+            onPressed: () => context.push('/admin/students/invite'),
+          ),
+        ],
+      ),
       body: Column(
         children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              children: [
+                Expanded(
+                  child: FilledButton.icon(
+                    onPressed: () => context.push('/admin/students/invite'),
+                    icon: const Icon(Icons.mail_outline),
+                    label: const Text('Invite Student'),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                OutlinedButton.icon(
+                  onPressed: () => context.push('/admin/driving-tests'),
+                  icon: const Icon(Icons.fact_check_outlined),
+                  label: const Text('Tests'),
+                ),
+              ],
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.all(AppSpacing.md),
             child: TextField(
               onChanged: (v) => setState(() => _query = v.trim().toLowerCase()),
-              decoration: const InputDecoration(hintText: 'Search by name, email or phone', prefixIcon: Icon(Icons.search)),
+              decoration: const InputDecoration(
+                hintText: 'Search by name, email or phone',
+                prefixIcon: Icon(Icons.search),
+              ),
             ),
           ),
           Expanded(
             child: AsyncValueView<List<AppUser>>(
-              value: ref.watch(adminStudentsProvider).whenData((l) => _query.isEmpty
-                  ? l
-                  : l.where((s) => s.fullName.toLowerCase().contains(_query) || s.email.toLowerCase().contains(_query) || (s.phone ?? '').contains(_query)).toList()),
+              value: ref
+                  .watch(adminStudentsProvider)
+                  .whenData(
+                    (l) => _query.isEmpty
+                        ? l
+                        : l
+                              .where(
+                                (s) =>
+                                    s.fullName.toLowerCase().contains(_query) ||
+                                    s.email.toLowerCase().contains(_query) ||
+                                    (s.phone ?? '').contains(_query),
+                              )
+                              .toList(),
+                  ),
               onRetry: () => ref.invalidate(adminStudentsProvider),
               isEmpty: (l) => l.isEmpty,
-              empty: const EmptyState(icon: Icons.groups_outlined, title: 'No students found', message: 'Students appear here when they register.'),
+              empty: const EmptyState(
+                icon: Icons.groups_outlined,
+                title: 'No students found',
+                message: 'Use Invite Student to add a new learner.',
+              ),
               data: (students) => ListView.separated(
-                padding: const EdgeInsets.fromLTRB(AppSpacing.md, 0, AppSpacing.md, AppSpacing.md),
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.md,
+                  0,
+                  AppSpacing.md,
+                  AppSpacing.md,
+                ),
                 itemCount: students.length,
-                separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
+                separatorBuilder: (_, __) =>
+                    const SizedBox(height: AppSpacing.sm),
                 itemBuilder: (_, i) {
                   final s = students[i];
-                  final mine = bookings.where((b) => b.studentId == s.uid).toList();
-                  final upcoming = mine.where((b) => b.isUpcoming(now)).toList()..sort((a, b) => a.start.compareTo(b.start));
-                  final previous = mine.where((b) => !b.isUpcoming(now) && b.status.name == 'completed').length;
+                  final mine = bookings
+                      .where((b) => b.studentId == s.uid)
+                      .toList();
+                  final upcoming = mine.where((b) => b.isUpcoming(now)).toList()
+                    ..sort((a, b) => a.start.compareTo(b.start));
+                  final previous = mine
+                      .where(
+                        (b) =>
+                            !b.isUpcoming(now) && b.status.name == 'completed',
+                      )
+                      .length;
                   return Center(
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 820),
@@ -64,27 +126,65 @@ class _StudentsPageState extends ConsumerState<StudentsPage> {
                           children: [
                             CircleAvatar(
                               backgroundColor: AppColors.primary,
-                              child: Text(s.fullName.isEmpty ? '?' : s.fullName[0].toUpperCase()),
+                              child: Text(
+                                s.fullName.isEmpty
+                                    ? '?'
+                                    : s.fullName[0].toUpperCase(),
+                              ),
                             ),
                             const SizedBox(width: 14),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Row(children: [
-                                    Flexible(child: Text(s.fullName, style: t.titleMedium, overflow: TextOverflow.ellipsis)),
-                                    if (!s.isActive)
-                                      Padding(padding: const EdgeInsets.only(left: 8), child: Text('Inactive', style: t.bodySmall?.copyWith(color: AppColors.error))),
-                                  ]),
-                                  Text(s.email, style: t.bodyMedium, overflow: TextOverflow.ellipsis),
-                                  Text((s.phone ?? '').isEmpty ? 'No phone' : s.phone!, style: t.bodySmall),
+                                  Row(
+                                    children: [
+                                      Flexible(
+                                        child: Text(
+                                          s.fullName,
+                                          style: t.titleMedium,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      if (!s.isActive)
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                            left: 8,
+                                          ),
+                                          child: Text(
+                                            'Inactive',
+                                            style: t.bodySmall?.copyWith(
+                                              color: AppColors.error,
+                                            ),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                  Text(
+                                    s.email,
+                                    style: t.bodyMedium,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  Text(
+                                    (s.phone ?? '').isEmpty
+                                        ? 'No phone'
+                                        : s.phone!,
+                                    style: t.bodySmall,
+                                  ),
                                 ],
                               ),
                             ),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                Text(upcoming.isEmpty ? 'No upcoming' : DateTimeUtils.formatDateTime(upcoming.first.start), style: t.bodyMedium),
+                                Text(
+                                  upcoming.isEmpty
+                                      ? 'No upcoming'
+                                      : DateTimeUtils.formatDateTime(
+                                          upcoming.first.start,
+                                        ),
+                                  style: t.bodyMedium,
+                                ),
                                 Text('$previous completed', style: t.bodySmall),
                               ],
                             ),

@@ -18,8 +18,14 @@ class LessonActions extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final notice = ref.watch(settingsProvider).valueOrNull?.studentChangeNoticeHours ?? AppConstants.studentChangeNoticeHours;
-    final a = BookingRules.studentActions(booking, DateTime.now(), noticeHours: notice);
+    final notice =
+        ref.watch(settingsProvider).valueOrNull?.studentChangeNoticeHours ??
+        AppConstants.studentChangeNoticeHours;
+    final a = BookingRules.studentActions(
+      booking,
+      DateTime.now(),
+      noticeHours: notice,
+    );
     final t = Theme.of(context).textTheme;
 
     if (!a.canRequest) {
@@ -37,8 +43,11 @@ class LessonActions extends ConsumerWidget {
       children: [
         Expanded(
           child: OutlinedButton(
-            style: OutlinedButton.styleFrom(padding: EdgeInsets.symmetric(vertical: compact ? 10 : 14)),
-            onPressed: () => showRequestSheet(context, booking, RequestType.reschedule),
+            style: OutlinedButton.styleFrom(
+              padding: EdgeInsets.symmetric(vertical: compact ? 10 : 14),
+            ),
+            onPressed: () =>
+                showRequestSheet(context, booking, RequestType.reschedule),
             child: const Text('Request change'),
           ),
         ),
@@ -50,7 +59,8 @@ class LessonActions extends ConsumerWidget {
               foregroundColor: AppColors.error,
               side: const BorderSide(color: AppColors.error),
             ),
-            onPressed: () => showRequestSheet(context, booking, RequestType.cancel),
+            onPressed: () =>
+                showRequestSheet(context, booking, RequestType.cancel),
             child: const Text('Request cancellation'),
           ),
         ),

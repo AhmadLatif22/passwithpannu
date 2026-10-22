@@ -37,12 +37,27 @@ class ProfilePage extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   if (user != null) _ProfileForm(user: user),
+                  const SizedBox(height: 12),
+                  OutlinedButton.icon(
+                    onPressed: () => context.push('/terms'),
+                    icon: const Icon(Icons.description_outlined),
+                    label: const Text('Terms & Conditions'),
+                  ),
+                  const SizedBox(height: 12),
+                  OutlinedButton.icon(
+                    onPressed: () => context.push('/progress'),
+                    icon: const Icon(Icons.trending_up),
+                    label: const Text('My Driving Progress'),
+                  ),
                   if (denied) ...[
                     const SizedBox(height: AppSpacing.md),
                     const AppCard(
                       child: Row(
                         children: [
-                          Icon(Icons.notifications_off_outlined, color: AppColors.warning),
+                          Icon(
+                            Icons.notifications_off_outlined,
+                            color: AppColors.warning,
+                          ),
                           SizedBox(width: 12),
                           Expanded(
                             child: Text(
@@ -58,7 +73,8 @@ class ProfilePage extends ConsumerWidget {
                       label: 'Switch to admin dashboard',
                       icon: Icons.admin_panel_settings_outlined,
                       onPressed: () {
-                        ref.read(adminViewAsStudentProvider.notifier).state = false;
+                        ref.read(adminViewAsStudentProvider.notifier).state =
+                            false;
                         context.go('/admin');
                       },
                     ),
@@ -70,9 +86,19 @@ class ProfilePage extends ConsumerWidget {
                     label: 'Sign out',
                     icon: Icons.logout,
                     onPressed: () async {
-                      final ok = await confirmDialog(context,
-                          title: 'Sign out?', message: 'You’ll need to sign in again to manage your lessons.', confirmLabel: 'Sign out', cancelLabel: 'Stay signed in');
-                      if (ok) await ref.read(authControllerProvider.notifier).signOut();
+                      final ok = await confirmDialog(
+                        context,
+                        title: 'Sign out?',
+                        message:
+                            'You’ll need to sign in again to manage your lessons.',
+                        confirmLabel: 'Sign out',
+                        cancelLabel: 'Stay signed in',
+                      );
+                      if (ok) {
+                        await ref
+                            .read(authControllerProvider.notifier)
+                            .signOut();
+                      }
                     },
                   ),
                 ],
@@ -106,10 +132,16 @@ class _ProfileFormState extends ConsumerState<_ProfileForm> {
 
   Future<void> _save() async {
     if (!_form.currentState!.validate()) return;
-    final ok = await ref.read(authControllerProvider.notifier).updateProfile(fullName: _name.text, phone: _phone.text);
+    final ok = await ref
+        .read(authControllerProvider.notifier)
+        .updateProfile(fullName: _name.text, phone: _phone.text);
     if (!mounted) return;
     final state = ref.read(authControllerProvider);
-    showSnack(context, ok ? 'Profile updated' : AppFailure.from(state.error ?? 'x').message, error: !ok);
+    showSnack(
+      context,
+      ok ? 'Profile updated' : AppFailure.from(state.error ?? 'x').message,
+      error: !ok,
+    );
     ref.read(authControllerProvider.notifier).clearError();
   }
 
@@ -124,24 +156,37 @@ class _ProfileFormState extends ConsumerState<_ProfileForm> {
           TextFormField(
             initialValue: widget.user.email,
             enabled: false,
-            decoration: const InputDecoration(labelText: 'Email', prefixIcon: Icon(Icons.mail_outline)),
+            decoration: const InputDecoration(
+              labelText: 'Email',
+              prefixIcon: Icon(Icons.mail_outline),
+            ),
           ),
           const SizedBox(height: 14),
           TextFormField(
             controller: _name,
             textCapitalization: TextCapitalization.words,
-            decoration: const InputDecoration(labelText: 'Full name', prefixIcon: Icon(Icons.person_outline)),
+            decoration: const InputDecoration(
+              labelText: 'Full name',
+              prefixIcon: Icon(Icons.person_outline),
+            ),
             validator: Validators.fullName,
           ),
           const SizedBox(height: 14),
           TextFormField(
             controller: _phone,
             keyboardType: TextInputType.phone,
-            decoration: const InputDecoration(labelText: 'Phone', prefixIcon: Icon(Icons.phone_outlined)),
+            decoration: const InputDecoration(
+              labelText: 'Phone',
+              prefixIcon: Icon(Icons.phone_outlined),
+            ),
             validator: Validators.optionalPhone,
           ),
           const SizedBox(height: 18),
-          PrimaryButton(label: 'Save changes', isLoading: busy, onPressed: _save),
+          PrimaryButton(
+            label: 'Save changes',
+            isLoading: busy,
+            onPressed: _save,
+          ),
         ],
       ),
     );

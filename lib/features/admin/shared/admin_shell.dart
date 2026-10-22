@@ -22,11 +22,31 @@ class _Dest {
 
 const _dests = [
   _Dest('Dashboard', Icons.dashboard_outlined, Icons.dashboard, '/admin'),
-  _Dest('Diary', Icons.calendar_month_outlined, Icons.calendar_month, '/admin/diary'),
-  _Dest('Bookings', Icons.event_note_outlined, Icons.event_note, '/admin/bookings'),
+  _Dest(
+    'Diary',
+    Icons.calendar_month_outlined,
+    Icons.calendar_month,
+    '/admin/diary',
+  ),
+  _Dest(
+    'Bookings',
+    Icons.event_note_outlined,
+    Icons.event_note,
+    '/admin/bookings',
+  ),
   _Dest('Students', Icons.groups_outlined, Icons.groups, '/admin/students'),
-  _Dest('Requests', Icons.mark_email_unread_outlined, Icons.mark_email_unread, '/admin/requests'),
-  _Dest('Availability', Icons.event_busy_outlined, Icons.event_busy, '/admin/availability'),
+  _Dest(
+    'Requests',
+    Icons.mark_email_unread_outlined,
+    Icons.mark_email_unread,
+    '/admin/requests',
+  ),
+  _Dest(
+    'Availability',
+    Icons.event_busy_outlined,
+    Icons.event_busy,
+    '/admin/availability',
+  ),
   _Dest('Settings', Icons.settings_outlined, Icons.settings, '/admin/settings'),
 ];
 
@@ -40,7 +60,9 @@ class AdminShell extends ConsumerWidget {
     var best = -1;
     for (var i = 0; i < _dests.length; i++) {
       final p = _dests[i].path;
-      final match = p == '/admin' ? location == '/admin' : location.startsWith(p);
+      final match = p == '/admin'
+          ? location == '/admin'
+          : location.startsWith(p);
       if (match) best = i;
     }
     return best;
@@ -48,25 +70,38 @@ class AdminShell extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final pending = ref.watch(adminPendingRequestsProvider).valueOrNull?.length ?? 0;
+    final pending =
+        ref.watch(adminPendingRequestsProvider).valueOrNull?.length ?? 0;
     final unread = ref.watch(unreadNotificationsProvider);
     final width = MediaQuery.of(context).size.width;
     final idx = _index;
 
     Widget icon(_Dest d, {bool selected = false}) {
       final i = Icon(selected ? d.selectedIcon : d.icon);
-      return d.label == 'Requests' ? Badge(isLabelVisible: pending > 0, label: Text('$pending'), child: i) : i;
+      return d.label == 'Requests'
+          ? Badge(
+              isLabelVisible: pending > 0,
+              label: Text('$pending'),
+              child: i,
+            )
+          : i;
     }
 
     IconButton(
       tooltip: 'Switch to student view',
-      onPressed: () => ref.read(adminViewAsStudentProvider.notifier).state = true,
+      onPressed: () =>
+          ref.read(adminViewAsStudentProvider.notifier).state = true,
       icon: const Icon(Icons.swap_horiz),
     );
 
     Future<void> signOut() async {
-      final ok = await confirmDialog(context,
-          title: 'Sign out?', message: 'You’ll need to sign in again.', confirmLabel: 'Sign out', cancelLabel: 'Stay signed in');
+      final ok = await confirmDialog(
+        context,
+        title: 'Sign out?',
+        message: 'You’ll need to sign in again.',
+        confirmLabel: 'Sign out',
+        cancelLabel: 'Stay signed in',
+      );
       if (ok) await ref.read(authControllerProvider.notifier).signOut();
     }
 
@@ -79,10 +114,14 @@ class AdminShell extends ConsumerWidget {
                 extended: width >= AppBreakpoints.desktop,
                 selectedIndex: idx < 0 ? null : idx,
                 onDestinationSelected: (i) => context.go(_dests[i].path),
-                labelType: width >= AppBreakpoints.desktop ? NavigationRailLabelType.none : NavigationRailLabelType.all,
+                labelType: width >= AppBreakpoints.desktop
+                    ? NavigationRailLabelType.none
+                    : NavigationRailLabelType.all,
                 leading: Padding(
                   padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
-                  child: BrandLogo(height: width >= AppBreakpoints.desktop ? 56 : 36),
+                  child: BrandLogo(
+                    height: width >= AppBreakpoints.desktop ? 56 : 36,
+                  ),
                 ),
                 trailing: Expanded(
                   child: Align(
@@ -95,9 +134,17 @@ class AdminShell extends ConsumerWidget {
                           IconButton(
                             tooltip: 'Notifications',
                             onPressed: () => context.go('/admin/notifications'),
-                            icon: Badge(isLabelVisible: unread > 0, label: Text('$unread'), child: const Icon(Icons.notifications_outlined)),
+                            icon: Badge(
+                              isLabelVisible: unread > 0,
+                              label: Text('$unread'),
+                              child: const Icon(Icons.notifications_outlined),
+                            ),
                           ),
-                          IconButton(tooltip: 'Sign out', onPressed: signOut, icon: const Icon(Icons.logout)),
+                          IconButton(
+                            tooltip: 'Sign out',
+                            onPressed: signOut,
+                            icon: const Icon(Icons.logout),
+                          ),
                         ],
                       ),
                     ),
@@ -105,7 +152,11 @@ class AdminShell extends ConsumerWidget {
                 ),
                 destinations: [
                   for (final d in _dests)
-                    NavigationRailDestination(icon: icon(d), selectedIcon: icon(d, selected: true), label: Text(d.label)),
+                    NavigationRailDestination(
+                      icon: icon(d),
+                      selectedIcon: icon(d, selected: true),
+                      label: Text(d.label),
+                    ),
                 ],
               ),
               const VerticalDivider(width: 1),
@@ -117,7 +168,17 @@ class AdminShell extends ConsumerWidget {
     }
 
     // Phone layout: first four sections + a More sheet for the rest.
-    final barIndex = idx < 0 ? null : (idx == 0 ? 0 : idx == 1 ? 1 : idx == 2 ? 2 : idx == 4 ? 3 : 4);
+    final barIndex = idx < 0
+        ? null
+        : (idx == 0
+              ? 0
+              : idx == 1
+              ? 1
+              : idx == 2
+              ? 2
+              : idx == 4
+              ? 3
+              : 4);
     const barItems = [0, 1, 2, 4];
     return PushBootstrap(
       child: Scaffold(
@@ -145,7 +206,11 @@ class AdminShell extends ConsumerWidget {
                           },
                         ),
                       ListTile(
-                        leading: Badge(isLabelVisible: unread > 0, label: Text('$unread'), child: const Icon(Icons.notifications_outlined)),
+                        leading: Badge(
+                          isLabelVisible: unread > 0,
+                          label: Text('$unread'),
+                          child: const Icon(Icons.notifications_outlined),
+                        ),
                         title: const Text('Notifications'),
                         onTap: () {
                           Navigator.pop(ctx);
@@ -165,7 +230,8 @@ class AdminShell extends ConsumerWidget {
                         title: const Text('Switch to student view'),
                         onTap: () {
                           Navigator.pop(ctx);
-                          ref.read(adminViewAsStudentProvider.notifier).state = true;
+                          ref.read(adminViewAsStudentProvider.notifier).state =
+                              true;
                         },
                       ),
                     ],
@@ -175,8 +241,16 @@ class AdminShell extends ConsumerWidget {
             }
           },
           destinations: [
-            for (final k in barItems) NavigationDestination(icon: icon(_dests[k]), selectedIcon: icon(_dests[k], selected: true), label: _dests[k].label),
-            const NavigationDestination(icon: Icon(Icons.more_horiz), label: 'More'),
+            for (final k in barItems)
+              NavigationDestination(
+                icon: icon(_dests[k]),
+                selectedIcon: icon(_dests[k], selected: true),
+                label: _dests[k].label,
+              ),
+            const NavigationDestination(
+              icon: Icon(Icons.more_horiz),
+              label: 'More',
+            ),
           ],
         ),
       ),

@@ -32,42 +32,73 @@ class _StepDateState extends ConsumerState<StepDate> {
     final today = DateTimeUtils.todayBusiness();
     final lastDay = today.add(Duration(days: maxDays));
     final monthKey = DateFormat('yyyy-MM').format(_month);
-    final available = ref.watch(availableDatesProvider(DatesQuery(monthKey, pickup)));
-    final canGoBack = DateTime(_month.year, _month.month) .isAfter(DateTime(today.year, today.month));
-    final canGoForward = DateTime(_month.year, _month.month + 1).isBefore(lastDay);
+    final available = ref.watch(
+      availableDatesProvider(DatesQuery(monthKey, pickup)),
+    );
+    final canGoBack = DateTime(
+      _month.year,
+      _month.month,
+    ).isAfter(DateTime(today.year, today.month));
+    final canGoForward = DateTime(
+      _month.year,
+      _month.month + 1,
+    ).isBefore(lastDay);
 
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.md),
       children: [
         Text('Choose a date', style: t.headlineMedium),
         const SizedBox(height: 4),
-        Text('Highlighted days have lesson times available.', style: t.bodyMedium),
+        Text(
+          'Highlighted days have lesson times available.',
+          style: t.bodyMedium,
+        ),
         const SizedBox(height: AppSpacing.md),
         Row(
           children: [
             IconButton(
               tooltip: 'Previous month',
-              onPressed: canGoBack ? () => setState(() => _month = DateTime(_month.year, _month.month - 1)) : null,
+              onPressed: canGoBack
+                  ? () => setState(
+                      () => _month = DateTime(_month.year, _month.month - 1),
+                    )
+                  : null,
               icon: const Icon(Icons.chevron_left),
             ),
             Expanded(
-              child: Center(child: Text(DateTimeUtils.formatMonthYear(_month), style: t.titleMedium)),
+              child: Center(
+                child: Text(
+                  DateTimeUtils.formatMonthYear(_month),
+                  style: t.titleMedium,
+                ),
+              ),
             ),
             IconButton(
               tooltip: 'Next month',
-              onPressed: canGoForward ? () => setState(() => _month = DateTime(_month.year, _month.month + 1)) : null,
+              onPressed: canGoForward
+                  ? () => setState(
+                      () => _month = DateTime(_month.year, _month.month + 1),
+                    )
+                  : null,
               icon: const Icon(Icons.chevron_right),
             ),
           ],
         ),
         const SizedBox(height: AppSpacing.sm),
         available.when(
-          loading: () => const SizedBox(height: 280, child: Center(child: CircularProgressIndicator(color: AppColors.accent))),
+          loading: () => const SizedBox(
+            height: 280,
+            child: Center(
+              child: CircularProgressIndicator(color: AppColors.accent),
+            ),
+          ),
           error: (e, _) => SizedBox(
             height: 200,
             child: Center(
               child: TextButton.icon(
-                onPressed: () => ref.invalidate(availableDatesProvider(DatesQuery(monthKey, pickup))),
+                onPressed: () => ref.invalidate(
+                  availableDatesProvider(DatesQuery(monthKey, pickup)),
+                ),
                 icon: const Icon(Icons.refresh),
                 label: const Text('Couldn’t load availability. Tap to retry'),
               ),
@@ -83,17 +114,31 @@ class _StepDateState extends ConsumerState<StepDate> {
                   final selected = draft.dateKey == key;
                   return InkWell(
                     borderRadius: BorderRadius.circular(AppRadius.sm),
-                    onTap: ok ? () => ref.read(bookingFlowProvider.notifier).setDate(key) : null,
+                    onTap: ok
+                        ? () => ref
+                              .read(bookingFlowProvider.notifier)
+                              .setDate(key)
+                        : null,
                     child: Container(
                       decoration: BoxDecoration(
-                        color: selected ? AppColors.primary : (ok ? AppColors.primary.withValues(alpha: 0.18) : null),
+                        color: selected
+                            ? AppColors.primary
+                            : (ok
+                                  ? AppColors.primary.withValues(alpha: 0.18)
+                                  : null),
                         borderRadius: BorderRadius.circular(AppRadius.sm),
-                        border: selected ? Border.all(color: AppColors.accent, width: 1.6) : null,
+                        border: selected
+                            ? Border.all(color: AppColors.accent, width: 1.6)
+                            : null,
                       ),
                       alignment: Alignment.center,
                       child: Text(
                         '${day.day}',
-                        style: t.titleSmall?.copyWith(color: ok ? AppColors.textPrimary : AppColors.textMuted.withValues(alpha: 0.5)),
+                        style: t.titleSmall?.copyWith(
+                          color: ok
+                              ? AppColors.textPrimary
+                              : AppColors.textMuted.withValues(alpha: 0.5),
+                        ),
                       ),
                     ),
                   );
@@ -102,7 +147,10 @@ class _StepDateState extends ConsumerState<StepDate> {
               if (dates.isEmpty)
                 Padding(
                   padding: const EdgeInsets.only(top: AppSpacing.md),
-                  child: Text('No available days this month. Try the next month.', style: t.bodyMedium),
+                  child: Text(
+                    'No available days this month. Try the next month.',
+                    style: t.bodyMedium,
+                  ),
                 ),
             ],
           ),

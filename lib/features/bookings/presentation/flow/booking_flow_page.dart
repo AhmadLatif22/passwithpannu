@@ -7,7 +7,6 @@ import '../../../../core/errors/app_failure.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../../../core/widgets/secondary_button.dart';
-import '../../../../core/widgets/app_card.dart';
 import '../../../availability/presentation/availability_providers.dart';
 import 'booking_flow_controller.dart';
 import 'step_date.dart';
@@ -29,17 +28,17 @@ class _BookingFlowPageState extends ConsumerState<BookingFlowPage> {
   String? _notice;
 
   bool _canContinue(BookingDraft d) => switch (_step) {
-        0 => d.lessonType != null,
-        1 => d.pickup != null,
-        2 => d.dateKey != null,
-        3 => d.slot != null,
-        _ => d.isComplete,
-      };
+    0 => d.lessonType != null,
+    1 => d.pickup != null,
+    2 => d.dateKey != null,
+    3 => d.slot != null,
+    _ => d.isComplete,
+  };
 
   void _go(int step) => setState(() {
-        _step = step;
-        _notice = null;
-      });
+    _step = step;
+    _notice = null;
+  });
 
   Future<void> _confirm() async {
     final submit = ref.read(bookingSubmitProvider.notifier);
@@ -67,7 +66,9 @@ class _BookingFlowPageState extends ConsumerState<BookingFlowPage> {
       }
       submit.reset();
       if (mounted && !failure.isSlotUnavailable) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(failure.message)));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(failure.message)));
       }
     }
   }
@@ -92,7 +93,12 @@ class _BookingFlowPageState extends ConsumerState<BookingFlowPage> {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.md, AppSpacing.md, AppSpacing.sm),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.md,
+                AppSpacing.md,
+                AppSpacing.md,
+                AppSpacing.sm,
+              ),
               child: Row(
                 children: [
                   for (var i = 0; i < _labels.length; i++) ...[
@@ -103,14 +109,20 @@ class _BookingFlowPageState extends ConsumerState<BookingFlowPage> {
                             duration: const Duration(milliseconds: 200),
                             height: 4,
                             decoration: BoxDecoration(
-                              color: i <= _step ? AppColors.accent : AppColors.outline,
+                              color: i <= _step
+                                  ? AppColors.accent
+                                  : AppColors.outline,
                               borderRadius: BorderRadius.circular(2),
                             ),
                           ),
                           const SizedBox(height: 6),
                           Text(
                             _labels[i],
-                            style: t.bodySmall?.copyWith(color: i == _step ? AppColors.textPrimary : AppColors.textMuted),
+                            style: t.bodySmall?.copyWith(
+                              color: i == _step
+                                  ? AppColors.textPrimary
+                                  : AppColors.textMuted,
+                            ),
                           ),
                         ],
                       ),
@@ -144,15 +156,26 @@ class _BookingFlowPageState extends ConsumerState<BookingFlowPage> {
                   child: Row(
                     children: [
                       if (_step > 0) ...[
-                        Expanded(child: SecondaryButton(label: 'Back', onPressed: submitting ? null : () => _go(_step - 1))),
+                        Expanded(
+                          child: SecondaryButton(
+                            label: 'Back',
+                            onPressed: submitting ? null : () => _go(_step - 1),
+                          ),
+                        ),
                         const SizedBox(width: AppSpacing.md),
                       ],
                       Expanded(
                         flex: 2,
                         child: PrimaryButton(
-                          label: _step == _labels.length - 1 ? 'Confirm booking' : 'Continue',
+                          label: _step == _labels.length - 1
+                              ? 'Confirm booking'
+                              : 'Continue',
                           isLoading: submitting,
-                          onPressed: _canContinue(draft) ? (_step == _labels.length - 1 ? _confirm : () => _go(_step + 1)) : null,
+                          onPressed: _canContinue(draft)
+                              ? (_step == _labels.length - 1
+                                    ? _confirm
+                                    : () => _go(_step + 1))
+                              : null,
                         ),
                       ),
                     ],

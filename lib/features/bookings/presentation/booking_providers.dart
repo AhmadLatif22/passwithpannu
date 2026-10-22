@@ -6,7 +6,10 @@ import '../data/booking_repository.dart';
 import '../domain/booking.dart';
 
 final bookingRepositoryProvider = Provider<BookingRepository>(
-  (ref) => BookingRepository(ref.watch(firestoreProvider), ref.watch(functionsClientProvider)),
+  (ref) => BookingRepository(
+    ref.watch(firestoreProvider),
+    ref.watch(functionsClientProvider),
+  ),
 );
 
 /// All of the signed-in student's bookings (live).
@@ -28,12 +31,15 @@ final upcomingBookingsProvider = Provider<AsyncValue<List<Booking>>>((ref) {
 final bookingHistoryProvider = Provider<AsyncValue<List<Booking>>>((ref) {
   return ref.watch(studentBookingsProvider).whenData((all) {
     final now = DateTime.now();
-    return all.where((b) => !b.isUpcoming(now)).toList()..sort((a, b) => b.start.compareTo(a.start));
+    return all.where((b) => !b.isUpcoming(now)).toList()
+      ..sort((a, b) => b.start.compareTo(a.start));
   });
 });
 
 final nextBookingProvider = Provider<AsyncValue<Booking?>>((ref) {
-  return ref.watch(upcomingBookingsProvider).whenData((l) => l.isEmpty ? null : l.first);
+  return ref
+      .watch(upcomingBookingsProvider)
+      .whenData((l) => l.isEmpty ? null : l.first);
 });
 
 final bookingByIdProvider = StreamProvider.autoDispose.family<Booking?, String>(

@@ -9,40 +9,39 @@ enum BookingStatus {
   completed,
   rejected;
 
-  static BookingStatus fromName(String value) => BookingStatus.values.firstWhere(
+  static BookingStatus fromName(String value) =>
+      BookingStatus.values.firstWhere(
         (e) => e.name == value,
         orElse: () => throw ArgumentError('Unknown BookingStatus: $value'),
       );
 
   String get label => switch (this) {
-        BookingStatus.pending => 'Pending',
-        BookingStatus.confirmed => 'Confirmed',
-        BookingStatus.changeRequested => 'Change requested',
-        BookingStatus.cancellationRequested => 'Cancellation requested',
-        BookingStatus.cancelled => 'Cancelled',
-        BookingStatus.completed => 'Completed',
-        BookingStatus.rejected => 'Rejected',
-      };
+    BookingStatus.pending => 'Pending',
+    BookingStatus.confirmed => 'Confirmed',
+    BookingStatus.changeRequested => 'Change requested',
+    BookingStatus.cancellationRequested => 'Cancellation requested',
+    BookingStatus.cancelled => 'Cancelled',
+    BookingStatus.completed => 'Completed',
+    BookingStatus.rejected => 'Rejected',
+  };
 
   /// Statuses whose time slot is still occupied in the diary.
   /// A pending change/cancel request keeps the original slot blocked
   /// until the admin decides.
   bool get occupiesSlot => switch (this) {
-        BookingStatus.pending ||
-        BookingStatus.confirmed ||
-        BookingStatus.changeRequested ||
-        BookingStatus.cancellationRequested =>
-          true,
-        _ => false,
-      };
+    BookingStatus.pending ||
+    BookingStatus.confirmed ||
+    BookingStatus.changeRequested ||
+    BookingStatus.cancellationRequested => true,
+    _ => false,
+  };
 
   bool get isTerminal => switch (this) {
-        BookingStatus.cancelled ||
-        BookingStatus.completed ||
-        BookingStatus.rejected =>
-          true,
-        _ => false,
-      };
+    BookingStatus.cancelled ||
+    BookingStatus.completed ||
+    BookingStatus.rejected => true,
+    _ => false,
+  };
 
   static const Map<BookingStatus, Set<BookingStatus>> allowedTransitions = {
     BookingStatus.pending: {

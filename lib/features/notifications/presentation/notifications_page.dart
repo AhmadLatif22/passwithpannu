@@ -16,26 +16,33 @@ class NotificationsPage extends ConsumerWidget {
   const NotificationsPage({super.key});
 
   IconData _icon(String type) => switch (type) {
-        'booking_cancelled' => Icons.event_busy_outlined,
-        'booking_rescheduled' => Icons.update,
-        'request_approved' => Icons.check_circle_outline,
-        'request_rejected' => Icons.cancel_outlined,
-        'request_created' => Icons.mark_email_unread_outlined,
-        'reminder' => Icons.alarm,
-        _ => Icons.event_available_outlined,
-      };
+    'booking_cancelled' => Icons.event_busy_outlined,
+    'booking_rescheduled' => Icons.update,
+    'request_approved' => Icons.check_circle_outline,
+    'request_rejected' => Icons.cancel_outlined,
+    'request_created' => Icons.mark_email_unread_outlined,
+    'reminder' => Icons.alarm,
+    _ => Icons.event_available_outlined,
+  };
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isAdmin = ref.watch(isAdminProvider);
     final repo = ref.watch(notificationRepositoryProvider);
     final value = ref.watch(notificationsProvider);
-    final unread = (value.valueOrNull ?? const <AppNotification>[]).where((n) => !n.isRead).map((n) => n.id).toList();
+    final unread = (value.valueOrNull ?? const <AppNotification>[])
+        .where((n) => !n.isRead)
+        .map((n) => n.id)
+        .toList();
     return Scaffold(
       appBar: AppBar(
         title: const Text('Notifications'),
         actions: [
-          if (unread.isNotEmpty) TextButton(onPressed: () => repo.markAllRead(unread), child: const Text('Mark all read')),
+          if (unread.isNotEmpty)
+            TextButton(
+              onPressed: () => repo.markAllRead(unread),
+              child: const Text('Mark all read'),
+            ),
         ],
       ),
       body: AsyncValueView<List<AppNotification>>(
@@ -59,27 +66,54 @@ class NotificationsPage extends ConsumerWidget {
                 child: AppCard(
                   onTap: () {
                     if (!n.isRead) repo.markRead(n.id);
-                    if (n.bookingId != null) context.push(isAdmin ? '/admin/bookings/${n.bookingId}' : '/lesson/${n.bookingId}');
+                    if (n.bookingId != null) {
+                      context.push(
+                        isAdmin
+                            ? '/admin/bookings/${n.bookingId}'
+                            : '/lesson/${n.bookingId}',
+                      );
+                    }
                   },
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(_icon(n.type), color: n.isRead ? AppColors.textMuted : AppColors.accent),
+                      Icon(
+                        _icon(n.type),
+                        color: n.isRead
+                            ? AppColors.textMuted
+                            : AppColors.accent,
+                      ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(n.title, style: Theme.of(context).textTheme.titleSmall),
+                            Text(
+                              n.title,
+                              style: Theme.of(context).textTheme.titleSmall,
+                            ),
                             const SizedBox(height: 2),
-                            Text(n.body, style: Theme.of(context).textTheme.bodyMedium),
+                            Text(
+                              n.body,
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
                             const SizedBox(height: 4),
-                            Text(DateTimeUtils.formatDateTime(n.createdAt), style: Theme.of(context).textTheme.bodySmall),
+                            Text(
+                              DateTimeUtils.formatDateTime(n.createdAt),
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
                           ],
                         ),
                       ),
                       if (!n.isRead)
-                        Container(width: 10, height: 10, decoration: const BoxDecoration(color: AppColors.accent, shape: BoxShape.circle)),
+                        Container(
+                          width: 10,
+                          height: 10,
+                          decoration: const BoxDecoration(
+                            color: AppColors.accent,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
                     ],
                   ),
                 ),

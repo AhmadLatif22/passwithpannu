@@ -8,7 +8,13 @@ import 'app_card.dart';
 import 'booking_status_chip.dart';
 
 class LessonCard extends StatelessWidget {
-  const LessonCard({super.key, required this.booking, this.onTap, this.showStudent = false, this.footer});
+  const LessonCard({
+    super.key,
+    required this.booking,
+    this.onTap,
+    this.showStudent = false,
+    this.footer,
+  });
   final Booking booking;
   final VoidCallback? onTap;
   final bool showStudent;
@@ -35,9 +41,14 @@ class LessonCard extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
-                    Text('${local.day}', style: t.titleLarge?.copyWith(fontSize: 22)),
                     Text(
-                      DateTimeUtils.formatShortDate(booking.start).split(' ').last.toUpperCase(),
+                      '${local.day}',
+                      style: t.titleLarge?.copyWith(fontSize: 22),
+                    ),
+                    Text(
+                      DateTimeUtils.formatShortDate(
+                        booking.start,
+                      ).split(' ').last.toUpperCase(),
                       style: t.labelMedium?.copyWith(fontSize: 11),
                     ),
                   ],
@@ -49,7 +60,9 @@ class LessonCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      showStudent ? booking.studentName : '${booking.lessonType.label} lesson',
+                      showStudent
+                          ? booking.studentName
+                          : '${booking.lessonType.label} lesson',
                       style: t.titleMedium,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -59,7 +72,11 @@ class LessonCard extends StatelessWidget {
                       '${DateTimeUtils.formatShortDate(booking.start)} · ${DateTimeUtils.formatRange(booking.start, booking.end)}',
                       style: t.bodyMedium,
                     ),
-                    if (showStudent) Text('${booking.lessonType.label} lesson', style: t.bodySmall),
+                    if (showStudent)
+                      Text(
+                        '${booking.lessonType.label} lesson',
+                        style: t.bodySmall,
+                      ),
                   ],
                 ),
               ),
@@ -70,7 +87,11 @@ class LessonCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.sm),
           Row(
             children: [
-              const Icon(Icons.place_outlined, size: 16, color: AppColors.accent),
+              const Icon(
+                Icons.place_outlined,
+                size: 16,
+                color: AppColors.accent,
+              ),
               const SizedBox(width: 6),
               Expanded(
                 child: Text(
@@ -82,7 +103,10 @@ class LessonCard extends StatelessWidget {
               ),
             ],
           ),
-          if (footer != null) ...[const SizedBox(height: AppSpacing.sm), footer!],
+          if (footer != null) ...[
+            const SizedBox(height: AppSpacing.sm),
+            footer!,
+          ],
         ],
       ),
     );

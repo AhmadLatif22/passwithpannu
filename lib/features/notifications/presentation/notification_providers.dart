@@ -5,8 +5,9 @@ import '../../auth/presentation/auth_providers.dart';
 import '../data/notification_repository.dart';
 import '../domain/app_notification.dart';
 
-final notificationRepositoryProvider =
-    Provider<NotificationRepository>((ref) => NotificationRepository(ref.watch(firestoreProvider)));
+final notificationRepositoryProvider = Provider<NotificationRepository>(
+  (ref) => NotificationRepository(ref.watch(firestoreProvider)),
+);
 
 final notificationsProvider = StreamProvider<List<AppNotification>>((ref) {
   final uid = ref.watch(currentUidProvider);
@@ -15,5 +16,11 @@ final notificationsProvider = StreamProvider<List<AppNotification>>((ref) {
 });
 
 final unreadNotificationsProvider = Provider<int>(
-  (ref) => ref.watch(notificationsProvider).valueOrNull?.where((n) => !n.isRead).length ?? 0,
+  (ref) =>
+      ref
+          .watch(notificationsProvider)
+          .valueOrNull
+          ?.where((n) => !n.isRead)
+          .length ??
+      0,
 );

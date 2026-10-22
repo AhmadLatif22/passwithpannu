@@ -28,7 +28,9 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
 
   Future<void> _submit() async {
     if (!_form.currentState!.validate()) return;
-    final ok = await ref.read(authControllerProvider.notifier).sendReset(_email.text);
+    final ok = await ref
+        .read(authControllerProvider.notifier)
+        .sendReset(_email.text);
     if (ok && mounted) setState(() => _sent = true);
   }
 
@@ -40,7 +42,11 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
       subtitle: 'We’ll email you a link to choose a new one',
       children: [
         if (_sent) ...[
-          const Icon(Icons.mark_email_read_outlined, size: 48, color: AppColors.accent),
+          const Icon(
+            Icons.mark_email_read_outlined,
+            size: 48,
+            color: AppColors.accent,
+          ),
           const SizedBox(height: 12),
           Text(
             'If an account exists for ${_email.text.trim()}, a reset link is on its way. Check your inbox and spam folder.',
@@ -48,25 +54,39 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 20),
-          PrimaryButton(label: 'Back to sign in', onPressed: () => context.pop()),
+          PrimaryButton(
+            label: 'Back to sign in',
+            onPressed: () => context.pop(),
+          ),
         ] else
           Form(
             key: _form,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                if (auth.hasError) FormError(AppFailure.from(auth.error!).message),
+                if (auth.hasError)
+                  FormError(AppFailure.from(auth.error!).message),
                 TextFormField(
                   controller: _email,
                   keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(labelText: 'Email', prefixIcon: Icon(Icons.mail_outline)),
+                  decoration: const InputDecoration(
+                    labelText: 'Email',
+                    prefixIcon: Icon(Icons.mail_outline),
+                  ),
                   validator: Validators.email,
                   onFieldSubmitted: (_) => _submit(),
                 ),
                 const SizedBox(height: 20),
-                PrimaryButton(label: 'Send reset link', isLoading: auth.isLoading, onPressed: _submit),
+                PrimaryButton(
+                  label: 'Send reset link',
+                  isLoading: auth.isLoading,
+                  onPressed: _submit,
+                ),
                 const SizedBox(height: 12),
-                TextButton(onPressed: () => context.pop(), child: const Text('Back to sign in')),
+                TextButton(
+                  onPressed: () => context.pop(),
+                  child: const Text('Back to sign in'),
+                ),
               ],
             ),
           ),

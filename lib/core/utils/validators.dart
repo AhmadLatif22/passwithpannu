@@ -20,10 +20,12 @@ abstract final class Validators {
     return null;
   }
 
-  static String? Function(String?) confirmPassword(String Function() original) =>
+  static String? Function(String?) confirmPassword(
+    String Function() original,
+  ) =>
       (v) => (v == null || v.isEmpty)
-          ? 'Confirm your password'
-          : (v == original() ? null : 'Passwords do not match');
+      ? 'Confirm your password'
+      : (v == original() ? null : 'Passwords do not match');
 
   static String? fullName(String? v) {
     if (v == null || v.trim().length < 2) return 'Enter your full name';
@@ -38,5 +40,7 @@ abstract final class Validators {
   }
 
   static String? Function(String?) minLength(int n, String field) =>
-      (v) => (v == null || v.trim().length < n) ? '$field must be at least $n characters' : null;
+      (v) => (v == null || v.trim().length < n)
+      ? '$field must be at least $n characters'
+      : null;
 }

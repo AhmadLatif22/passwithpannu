@@ -9,17 +9,17 @@ class LoadingView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const CircularProgressIndicator(color: AppColors.accent),
-            if (message != null) ...[
-              const SizedBox(height: AppSpacing.md),
-              Text(message!, style: Theme.of(context).textTheme.bodyMedium),
-            ],
-          ],
-        ),
-      );
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const CircularProgressIndicator(color: AppColors.accent),
+        if (message != null) ...[
+          const SizedBox(height: AppSpacing.md),
+          Text(message!, style: Theme.of(context).textTheme.bodyMedium),
+        ],
+      ],
+    ),
+  );
 }
 
 /// Pulsing placeholder cards shown while lists load (never a blank page).
@@ -32,9 +32,12 @@ class SkeletonList extends StatefulWidget {
   State<SkeletonList> createState() => _SkeletonListState();
 }
 
-class _SkeletonListState extends State<SkeletonList> with SingleTickerProviderStateMixin {
-  late final AnimationController _c =
-      AnimationController(vsync: this, duration: const Duration(milliseconds: 900))..repeat(reverse: true);
+class _SkeletonListState extends State<SkeletonList>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 900),
+  )..repeat(reverse: true);
 
   @override
   void dispose() {
@@ -44,19 +47,19 @@ class _SkeletonListState extends State<SkeletonList> with SingleTickerProviderSt
 
   @override
   Widget build(BuildContext context) => FadeTransition(
-        opacity: Tween(begin: 0.35, end: 0.8).animate(_c),
-        child: ListView.separated(
-          physics: const NeverScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(AppSpacing.md),
-          itemCount: widget.count,
-          separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
-          itemBuilder: (_, __) => Container(
-            height: widget.height,
-            decoration: BoxDecoration(
-              color: AppColors.surfaceHigh,
-              borderRadius: BorderRadius.circular(AppRadius.md),
-            ),
-          ),
+    opacity: Tween(begin: 0.35, end: 0.8).animate(_c),
+    child: ListView.separated(
+      physics: const NeverScrollableScrollPhysics(),
+      padding: const EdgeInsets.all(AppSpacing.md),
+      itemCount: widget.count,
+      separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
+      itemBuilder: (_, __) => Container(
+        height: widget.height,
+        decoration: BoxDecoration(
+          color: AppColors.surfaceHigh,
+          borderRadius: BorderRadius.circular(AppRadius.md),
         ),
-      );
+      ),
+    ),
+  );
 }

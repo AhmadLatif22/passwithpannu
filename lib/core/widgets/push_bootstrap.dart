@@ -29,13 +29,17 @@ class _PushBootstrapState extends ConsumerState<PushBootstrap> {
       final fcm = ref.read(fcmServiceProvider);
       try {
         final status = await fcm.register(uid);
-        if (mounted) ref.read(notificationPermissionProvider.notifier).state = status;
+        if (mounted) {
+          ref.read(notificationPermissionProvider.notifier).state = status;
+        }
       } catch (_) {
         // Push is best-effort; the in-app notification list still works.
       }
       _sub = fcm.foregroundMessages.listen((m) {
         final n = m.notification;
-        if (n != null && mounted) showSnack(context, [n.title, n.body].whereType<String>().join(': '));
+        if (n != null && mounted) {
+          showSnack(context, [n.title, n.body].whereType<String>().join(': '));
+        }
       });
     });
   }

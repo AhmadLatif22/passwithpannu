@@ -9,12 +9,13 @@ class BookingStatusChip extends StatelessWidget {
   final String? label;
 
   static Color colorFor(BookingStatus s) => switch (s) {
-        BookingStatus.confirmed => AppColors.success,
-        BookingStatus.pending => AppColors.warning,
-        BookingStatus.changeRequested || BookingStatus.cancellationRequested => AppColors.info,
-        BookingStatus.completed => AppColors.accent,
-        BookingStatus.cancelled || BookingStatus.rejected => AppColors.error,
-      };
+    BookingStatus.confirmed => AppColors.success,
+    BookingStatus.pending => AppColors.warning,
+    BookingStatus.changeRequested ||
+    BookingStatus.cancellationRequested => AppColors.info,
+    BookingStatus.completed => AppColors.accent,
+    BookingStatus.cancelled || BookingStatus.rejected => AppColors.error,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +29,9 @@ class BookingStatusChip extends StatelessWidget {
       ),
       child: Text(
         label ?? status.label,
-        style: Theme.of(context).textTheme.labelMedium?.copyWith(color: c, fontSize: 12),
+        style: Theme.of(
+          context,
+        ).textTheme.labelMedium?.copyWith(color: c, fontSize: 12),
       ),
     );
   }

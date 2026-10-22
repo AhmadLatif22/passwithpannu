@@ -1,6 +1,5 @@
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 
 /// User-presentable failure. Raw Firebase exceptions never reach the UI.
 class AppFailure implements Exception {
@@ -18,7 +17,14 @@ class AppFailure implements Exception {
   /// Conflicts an admin may knowingly override (never overlap with another lesson).
   bool get isOverridable =>
       isSlotUnavailable &&
-      const {'travel_before', 'travel_after', 'blocked', 'outside_hours', 'too_soon', 'misaligned'}.contains(reason);
+      const {
+        'travel_before',
+        'travel_after',
+        'blocked',
+        'outside_hours',
+        'too_soon',
+        'misaligned',
+      }.contains(reason);
 
   @override
   String toString() => message;
@@ -39,16 +45,21 @@ class AppFailure implements Exception {
     'resolve_request_first': 'Resolve the student’s open request first.',
     'invalid_status': 'That is no longer possible for this lesson.',
     'not_started': 'This lesson has not started yet.',
-    'profile_missing': 'Your account is not active. Please contact Pass With Pannu.',
-    'maps_not_configured': 'Address search is unavailable right now. Please try again later.',
-    'places_failed': 'Address search is unavailable right now. Please try again later.',
+    'profile_missing':
+        'Your account is not active. Please contact Pass With Pannu.',
+    'maps_not_configured':
+        'Address search is unavailable right now. Please try again later.',
+    'places_failed':
+        'Address search is unavailable right now. Please try again later.',
     'not_admin': 'You do not have permission to do that.',
     'invalid_input': 'Please check the details you entered.',
   };
 
   static const _slotReasons = <String, String>{
-    'travel_before': 'That time doesn’t leave enough travel time after the previous lesson.',
-    'travel_after': 'That time doesn’t leave enough travel time before the next lesson.',
+    'travel_before':
+        'That time doesn’t leave enough travel time after the previous lesson.',
+    'travel_after':
+        'That time doesn’t leave enough travel time before the next lesson.',
     'blocked': 'The instructor isn’t available at that time.',
     'overlap': 'That time was just taken. Please choose another slot.',
     'in_past': 'That time has already passed.',
@@ -78,7 +89,10 @@ class AppFailure implements Exception {
         case 'unauthenticated':
           return const AppFailure('unauthenticated', 'Please sign in again.');
         case 'permission-denied':
-          return const AppFailure('permission', 'You do not have permission to do that.');
+          return const AppFailure(
+            'permission',
+            'You do not have permission to do that.',
+          );
       }
       return const AppFailure('unknown', _generic);
     }
@@ -87,25 +101,35 @@ class AppFailure implements Exception {
       return AppFailure(error.code, switch (error.code) {
         'invalid-email' => 'That email address does not look right.',
         'user-disabled' => 'This account has been disabled.',
-        'user-not-found' || 'wrong-password' || 'invalid-credential' => 'Incorrect email or password.',
+        'user-not-found' ||
+        'wrong-password' ||
+        'invalid-credential' => 'Incorrect email or password.',
         'email-already-in-use' => 'An account with this email already exists.',
         'weak-password' => 'Please choose a stronger password.',
-        'too-many-requests' => 'Too many attempts. Please wait a moment and try again.',
+        'too-many-requests' =>
+          'Too many attempts. Please wait a moment and try again.',
         'network-request-failed' => _network,
         _ => _generic,
       });
     }
 
     if (error is FirebaseException) {
-      if (error.code == 'unavailable') return const AppFailure('network', _network);
+      if (error.code == 'unavailable') {
+        return const AppFailure('network', _network);
+      }
       if (error.code == 'permission-denied') {
-        return const AppFailure('permission', 'You do not have permission to do that.');
+        return const AppFailure(
+          'permission',
+          'You do not have permission to do that.',
+        );
       }
       return const AppFailure('unknown', _generic);
     }
 
     final text = error.toString();
-    if (text.contains('SocketException') || text.contains('ClientException') || text.contains('network')) {
+    if (text.contains('SocketException') ||
+        text.contains('ClientException') ||
+        text.contains('network')) {
       return const AppFailure('network', _network);
     }
     return const AppFailure('unknown', _generic);

@@ -10,9 +10,14 @@ class NotificationRepository {
       .collection('notifications')
       .where('userId', isEqualTo: uid)
       .snapshots()
-      .map((s) => s.docs.map(AppNotification.fromDoc).toList()..sort((a, b) => b.createdAt.compareTo(a.createdAt)));
+      .map(
+        (s) =>
+            s.docs.map(AppNotification.fromDoc).toList()
+              ..sort((a, b) => b.createdAt.compareTo(a.createdAt)),
+      );
 
-  Future<void> markRead(String id) => _db.collection('notifications').doc(id).update({'isRead': true});
+  Future<void> markRead(String id) =>
+      _db.collection('notifications').doc(id).update({'isRead': true});
 
   Future<void> markAllRead(Iterable<String> ids) async {
     final batch = _db.batch();

@@ -27,11 +27,31 @@ class StepReview extends ConsumerWidget {
           gradient: true,
           child: Column(
             children: [
-              InfoRow(label: 'Student', value: name.isEmpty ? '-' : name, icon: Icons.person_outline),
-              InfoRow(label: 'Lesson', value: '${d.lessonType!.label} · 2 hours', icon: Icons.directions_car_outlined),
-              InfoRow(label: 'Date', value: DateTimeUtils.formatLongDate(slot.start), icon: Icons.event_outlined),
-              InfoRow(label: 'Time', value: DateTimeUtils.formatRange(slot.start, slot.end), icon: Icons.schedule),
-              InfoRow(label: 'Pickup', value: d.pickup!.address, icon: Icons.place_outlined),
+              InfoRow(
+                label: 'Student',
+                value: name.isEmpty ? '-' : name,
+                icon: Icons.person_outline,
+              ),
+              InfoRow(
+                label: 'Lesson',
+                value: '${d.lessonType!.label} · 2 hours',
+                icon: Icons.directions_car_outlined,
+              ),
+              InfoRow(
+                label: 'Date',
+                value: DateTimeUtils.formatLongDate(slot.start),
+                icon: Icons.event_outlined,
+              ),
+              InfoRow(
+                label: 'Time',
+                value: DateTimeUtils.formatRange(slot.start, slot.end),
+                icon: Icons.schedule,
+              ),
+              InfoRow(
+                label: 'Pickup',
+                value: d.pickup!.address,
+                icon: Icons.place_outlined,
+              ),
             ],
           ),
         ),

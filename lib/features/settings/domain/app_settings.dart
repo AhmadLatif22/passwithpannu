@@ -54,13 +54,28 @@ class AppSettings {
     }
     int i(String k, int fallback) => (m[k] as num?)?.toInt() ?? fallback;
     return AppSettings(
-      lessonDurationMinutes: i('lessonDurationMinutes', d.lessonDurationMinutes),
+      lessonDurationMinutes: i(
+        'lessonDurationMinutes',
+        d.lessonDurationMinutes,
+      ),
       slotStepMinutes: i('slotStepMinutes', d.slotStepMinutes),
-      studentChangeNoticeHours: i('studentChangeNoticeHours', d.studentChangeNoticeHours),
-      minBookingNoticeHours: i('minBookingNoticeHours', d.minBookingNoticeHours),
-      maxAdvanceBookingDays: i('maxAdvanceBookingDays', d.maxAdvanceBookingDays),
+      studentChangeNoticeHours: i(
+        'studentChangeNoticeHours',
+        d.studentChangeNoticeHours,
+      ),
+      minBookingNoticeHours: i(
+        'minBookingNoticeHours',
+        d.minBookingNoticeHours,
+      ),
+      maxAdvanceBookingDays: i(
+        'maxAdvanceBookingDays',
+        d.maxAdvanceBookingDays,
+      ),
       travelBufferMinutes: i('travelBufferMinutes', d.travelBufferMinutes),
-      reminderOffsetsHours: (m['reminderOffsetsHours'] as List?)?.map((e) => (e as num).toInt()).toList() ??
+      reminderOffsetsHours:
+          (m['reminderOffsetsHours'] as List?)
+              ?.map((e) => (e as num).toInt())
+              .toList() ??
           d.reminderOffsetsHours,
       requireAdminApproval: (m['requireAdminApproval'] as bool?) ?? false,
       workingHours: wh,
@@ -68,16 +83,18 @@ class AppSettings {
   }
 
   Map<String, dynamic> toMap() => {
-        'lessonDurationMinutes': lessonDurationMinutes,
-        'slotStepMinutes': slotStepMinutes,
-        'studentChangeNoticeHours': studentChangeNoticeHours,
-        'minBookingNoticeHours': minBookingNoticeHours,
-        'maxAdvanceBookingDays': maxAdvanceBookingDays,
-        'travelBufferMinutes': travelBufferMinutes,
-        'reminderOffsetsHours': reminderOffsetsHours,
-        'requireAdminApproval': requireAdminApproval,
-        'workingHours': {for (final e in workingHours.entries) '${e.key}': e.value?.toMap()},
-      };
+    'lessonDurationMinutes': lessonDurationMinutes,
+    'slotStepMinutes': slotStepMinutes,
+    'studentChangeNoticeHours': studentChangeNoticeHours,
+    'minBookingNoticeHours': minBookingNoticeHours,
+    'maxAdvanceBookingDays': maxAdvanceBookingDays,
+    'travelBufferMinutes': travelBufferMinutes,
+    'reminderOffsetsHours': reminderOffsetsHours,
+    'requireAdminApproval': requireAdminApproval,
+    'workingHours': {
+      for (final e in workingHours.entries) '${e.key}': e.value?.toMap(),
+    },
+  };
 
   AppSettings copyWith({
     int? travelBufferMinutes,
@@ -86,16 +103,16 @@ class AppSettings {
     List<int>? reminderOffsetsHours,
     bool? requireAdminApproval,
     Map<int, WorkingDay?>? workingHours,
-  }) =>
-      AppSettings(
-        lessonDurationMinutes: lessonDurationMinutes,
-        slotStepMinutes: slotStepMinutes,
-        studentChangeNoticeHours: studentChangeNoticeHours ?? this.studentChangeNoticeHours,
-        minBookingNoticeHours: minBookingNoticeHours ?? this.minBookingNoticeHours,
-        maxAdvanceBookingDays: maxAdvanceBookingDays,
-        travelBufferMinutes: travelBufferMinutes ?? this.travelBufferMinutes,
-        reminderOffsetsHours: reminderOffsetsHours ?? this.reminderOffsetsHours,
-        requireAdminApproval: requireAdminApproval ?? this.requireAdminApproval,
-        workingHours: workingHours ?? this.workingHours,
-      );
+  }) => AppSettings(
+    lessonDurationMinutes: lessonDurationMinutes,
+    slotStepMinutes: slotStepMinutes,
+    studentChangeNoticeHours:
+        studentChangeNoticeHours ?? this.studentChangeNoticeHours,
+    minBookingNoticeHours: minBookingNoticeHours ?? this.minBookingNoticeHours,
+    maxAdvanceBookingDays: maxAdvanceBookingDays,
+    travelBufferMinutes: travelBufferMinutes ?? this.travelBufferMinutes,
+    reminderOffsetsHours: reminderOffsetsHours ?? this.reminderOffsetsHours,
+    requireAdminApproval: requireAdminApproval ?? this.requireAdminApproval,
+    workingHours: workingHours ?? this.workingHours,
+  );
 }

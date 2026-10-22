@@ -11,10 +11,12 @@ class BookingRepository {
   final FirebaseFirestore _db;
   final FunctionsClient _fn;
 
-  CollectionReference<Map<String, dynamic>> get _col => _db.collection('bookings');
+  CollectionReference<Map<String, dynamic>> get _col =>
+      _db.collection('bookings');
 
   static List<Booking> _sorted(QuerySnapshot<Map<String, dynamic>> s) =>
-      s.docs.map(Booking.fromDoc).toList()..sort((a, b) => a.start.compareTo(b.start));
+      s.docs.map(Booking.fromDoc).toList()
+        ..sort((a, b) => a.start.compareTo(b.start));
 
   /// A student's own bookings (rules only allow reading these).
   Stream<List<Booking>> watchForStudent(String uid) =>
@@ -56,28 +58,33 @@ class BookingRepository {
     required DateTime start,
     required PickupLocation pickup,
     bool override = false,
-  }) =>
-      _fn.call('adminCreateBooking', {
-        'studentId': studentId,
-        'lessonType': lessonType.name,
-        'startIso': start.toUtc().toIso8601String(),
-        'pickupAddress': pickup.address,
-        'pickupLatitude': pickup.lat,
-        'pickupLongitude': pickup.lng,
-        'override': override,
-      });
+  }) => _fn.call('adminCreateBooking', {
+    'studentId': studentId,
+    'lessonType': lessonType.name,
+    'startIso': start.toUtc().toIso8601String(),
+    'pickupAddress': pickup.address,
+    'pickupLatitude': pickup.lat,
+    'pickupLongitude': pickup.lng,
+    'override': override,
+  });
 
-  Future<void> adminReschedule(String bookingId, DateTime newStart, {bool override = false}) =>
-      _fn.call('adminRescheduleBooking', {
-        'bookingId': bookingId,
-        'newStartIso': newStart.toUtc().toIso8601String(),
-        'override': override,
-      });
+  Future<void> adminReschedule(
+    String bookingId,
+    DateTime newStart, {
+    bool override = false,
+  }) => _fn.call('adminRescheduleBooking', {
+    'bookingId': bookingId,
+    'newStartIso': newStart.toUtc().toIso8601String(),
+    'override': override,
+  });
 
-  Future<void> adminCancel(String bookingId, String reason) =>
-      _fn.call('adminCancelBooking', {'bookingId': bookingId, 'reason': reason});
+  Future<void> adminCancel(String bookingId, String reason) => _fn.call(
+    'adminCancelBooking',
+    {'bookingId': bookingId, 'reason': reason},
+  );
 
-  Future<void> adminComplete(String bookingId) => _fn.call('adminCompleteBooking', {'bookingId': bookingId});
+  Future<void> adminComplete(String bookingId) =>
+      _fn.call('adminCompleteBooking', {'bookingId': bookingId});
 
   Future<void> adminUpdate(
     String bookingId, {
@@ -85,16 +92,15 @@ class BookingRepository {
     PickupLocation? pickup,
     String? adminNotes,
     bool override = false,
-  }) =>
-      _fn.call('adminUpdateBooking', {
-        'bookingId': bookingId,
-        if (lessonType != null) 'lessonType': lessonType.name,
-        if (adminNotes != null) 'adminNotes': adminNotes,
-        if (pickup != null) ...{
-          'pickupAddress': pickup.address,
-          'pickupLatitude': pickup.lat,
-          'pickupLongitude': pickup.lng,
-        },
-        'override': override,
-      });
+  }) => _fn.call('adminUpdateBooking', {
+    'bookingId': bookingId,
+    if (lessonType != null) 'lessonType': lessonType.name,
+    if (adminNotes != null) 'adminNotes': adminNotes,
+    if (pickup != null) ...{
+      'pickupAddress': pickup.address,
+      'pickupLatitude': pickup.lat,
+      'pickupLongitude': pickup.lng,
+    },
+    'override': override,
+  });
 }

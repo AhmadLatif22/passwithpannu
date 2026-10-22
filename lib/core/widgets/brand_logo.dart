@@ -10,19 +10,24 @@ class BrandLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Image.asset(
-        'assets/images/passwithpannu_logo2.png',
-        height: height,
-        fit: BoxFit.contain,
-        semanticLabel: AppConstants.appName,
-        errorBuilder: (_, __, ___) => Text.rich(
+    'assets/images/passwithpannu_logo2.png',
+    height: height,
+    fit: BoxFit.contain,
+    semanticLabel: AppConstants.appName,
+    errorBuilder: (_, __, ___) => Text.rich(
+      TextSpan(
+        style: AppTextStyles.headlineLarge.copyWith(fontSize: height * 0.36),
+        children: [
+          const TextSpan(text: 'Pass With '),
           TextSpan(
-            style: AppTextStyles.headlineLarge.copyWith(fontSize: height * 0.36),
-            children: [
-              const TextSpan(text: 'Pass With '),
-              TextSpan(text: 'Pannu', style: AppTextStyles.accentOf(AppTextStyles.headlineLarge.copyWith(fontSize: height * 0.36))),
-            ],
+            text: 'Pannu',
+            style: AppTextStyles.accentOf(
+              AppTextStyles.headlineLarge.copyWith(fontSize: height * 0.36),
+            ),
           ),
-          textAlign: TextAlign.center,
-        ),
-      );
+        ],
+      ),
+      textAlign: TextAlign.center,
+    ),
+  );
 }

@@ -34,7 +34,9 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   Future<void> _submit() async {
     if (!_form.currentState!.validate()) return;
     FocusScope.of(context).unfocus();
-    await ref.read(authControllerProvider.notifier).register(
+    await ref
+        .read(authControllerProvider.notifier)
+        .register(
           fullName: _name.text,
           email: _email.text,
           password: _password.text,
@@ -55,13 +57,17 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                if (auth.hasError) FormError(AppFailure.from(auth.error!).message),
+                if (auth.hasError)
+                  FormError(AppFailure.from(auth.error!).message),
                 TextFormField(
                   controller: _name,
                   textCapitalization: TextCapitalization.words,
                   autofillHints: const [AutofillHints.name],
                   textInputAction: TextInputAction.next,
-                  decoration: const InputDecoration(labelText: 'Full name', prefixIcon: Icon(Icons.person_outline)),
+                  decoration: const InputDecoration(
+                    labelText: 'Full name',
+                    prefixIcon: Icon(Icons.person_outline),
+                  ),
                   validator: Validators.fullName,
                 ),
                 const SizedBox(height: 14),
@@ -70,7 +76,10 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                   keyboardType: TextInputType.emailAddress,
                   autofillHints: const [AutofillHints.email],
                   textInputAction: TextInputAction.next,
-                  decoration: const InputDecoration(labelText: 'Email', prefixIcon: Icon(Icons.mail_outline)),
+                  decoration: const InputDecoration(
+                    labelText: 'Email',
+                    prefixIcon: Icon(Icons.mail_outline),
+                  ),
                   validator: Validators.email,
                 ),
                 const SizedBox(height: 14),
@@ -82,7 +91,8 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                   decoration: const InputDecoration(
                     labelText: 'Phone (optional)',
                     prefixIcon: Icon(Icons.phone_outlined),
-                    helperText: 'So your instructor can reach you about lessons',
+                    helperText:
+                        'So your instructor can reach you about lessons',
                   ),
                   validator: Validators.optionalPhone,
                 ),
@@ -96,7 +106,11 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                     labelText: 'Password',
                     prefixIcon: const Icon(Icons.lock_outline),
                     suffixIcon: IconButton(
-                      icon: Icon(_obscure ? Icons.visibility_outlined : Icons.visibility_off_outlined),
+                      icon: Icon(
+                        _obscure
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
+                      ),
                       onPressed: () => setState(() => _obscure = !_obscure),
                     ),
                   ),
@@ -108,13 +122,23 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                   obscureText: _obscure,
                   textInputAction: TextInputAction.done,
                   onFieldSubmitted: (_) => _submit(),
-                  decoration: const InputDecoration(labelText: 'Confirm password', prefixIcon: Icon(Icons.lock_outline)),
+                  decoration: const InputDecoration(
+                    labelText: 'Confirm password',
+                    prefixIcon: Icon(Icons.lock_outline),
+                  ),
                   validator: Validators.confirmPassword(() => _password.text),
                 ),
                 const SizedBox(height: 20),
-                PrimaryButton(label: 'Create account', isLoading: auth.isLoading, onPressed: _submit),
+                PrimaryButton(
+                  label: 'Create account',
+                  isLoading: auth.isLoading,
+                  onPressed: _submit,
+                ),
                 const SizedBox(height: 12),
-                TextButton(onPressed: () => context.pop(), child: const Text('I already have an account')),
+                TextButton(
+                  onPressed: () => context.pop(),
+                  child: const Text('I already have an account'),
+                ),
               ],
             ),
           ),

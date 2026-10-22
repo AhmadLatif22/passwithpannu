@@ -43,11 +43,19 @@ class EmptyState extends StatelessWidget {
               Text(title, style: t.titleLarge, textAlign: TextAlign.center),
               if (message != null) ...[
                 const SizedBox(height: AppSpacing.sm),
-                Text(message!, style: t.bodyMedium, textAlign: TextAlign.center),
+                Text(
+                  message!,
+                  style: t.bodyMedium,
+                  textAlign: TextAlign.center,
+                ),
               ],
               if (actionLabel != null && onAction != null) ...[
                 const SizedBox(height: AppSpacing.lg),
-                PrimaryButton(label: actionLabel!, onPressed: onAction, expand: false),
+                PrimaryButton(
+                  label: actionLabel!,
+                  onPressed: onAction,
+                  expand: false,
+                ),
               ],
             ],
           ),

@@ -16,7 +16,9 @@ class AvailabilityBlock {
 
   bool overlaps(DateTime a, DateTime b) => start.isBefore(b) && a.isBefore(end);
 
-  factory AvailabilityBlock.fromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
+  factory AvailabilityBlock.fromDoc(
+    DocumentSnapshot<Map<String, dynamic>> doc,
+  ) {
     final d = doc.data() ?? const <String, dynamic>{};
     final s = tsToUtc(d['startDateTime']) ?? DateTime.now().toUtc();
     return AvailabilityBlock(

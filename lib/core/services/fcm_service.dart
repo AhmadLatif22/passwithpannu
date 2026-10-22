@@ -20,7 +20,8 @@ class FcmService {
   Future<AuthorizationStatus> register(String uid) async {
     if (kIsWeb) return AuthorizationStatus.notDetermined;
     final settings = await _messaging.requestPermission();
-    final granted = settings.authorizationStatus == AuthorizationStatus.authorized ||
+    final granted =
+        settings.authorizationStatus == AuthorizationStatus.authorized ||
         settings.authorizationStatus == AuthorizationStatus.provisional;
     if (!granted) return settings.authorizationStatus;
 
@@ -36,11 +37,16 @@ class FcmService {
 
   Future<void> _save(String uid, String token) async {
     _token = token;
-    await _db.collection('users').doc(uid).collection('devices').doc(token).set({
-      'token': token,
-      'platform': defaultTargetPlatform.name,
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
+    await _db
+        .collection('users')
+        .doc(uid)
+        .collection('devices')
+        .doc(token)
+        .set({
+          'token': token,
+          'platform': defaultTargetPlatform.name,
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
   }
 
   /// Call BEFORE signing out so a signed-out phone stops receiving someone's reminders.
@@ -49,7 +55,12 @@ class FcmService {
     _registeredUid = null;
     if (token == null || kIsWeb) return;
     try {
-      await _db.collection('users').doc(uid).collection('devices').doc(token).delete();
+      await _db
+          .collection('users')
+          .doc(uid)
+          .collection('devices')
+          .doc(token)
+          .delete();
     } catch (_) {}
   }
 
@@ -58,8 +69,13 @@ class FcmService {
 }
 
 final fcmServiceProvider = Provider<FcmService>(
-  (ref) => FcmService(ref.watch(firebaseMessagingProvider), ref.watch(firestoreProvider)),
+  (ref) => FcmService(
+    ref.watch(firebaseMessagingProvider),
+    ref.watch(firestoreProvider),
+  ),
 );
 
 /// Result of the permission prompt, so the profile page can explain a denial.
-final notificationPermissionProvider = StateProvider<AuthorizationStatus?>((_) => null);
+final notificationPermissionProvider = StateProvider<AuthorizationStatus?>(
+  (_) => null,
+);

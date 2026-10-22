@@ -16,8 +16,7 @@ class StepPickup extends ConsumerWidget {
     final t = Theme.of(context).textTheme;
     final draft = ref.watch(bookingFlowProvider);
 
-    final past =
-        ref.watch(studentBookingsProvider).valueOrNull ?? const [];
+    final past = ref.watch(studentBookingsProvider).valueOrNull ?? const [];
 
     final seen = <String>{};
 
@@ -43,16 +42,13 @@ class StepPickup extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.md),
       children: [
-        Text(
-          'Where should we pick you up?',
-          style: t.headlineMedium,
-        ),
+        Text('Where should we pick you up?', style: t.headlineMedium),
 
         const SizedBox(height: 8),
 
         Text(
           'Search for your pickup address and confirm '
-              'the location on the map.',
+          'the location on the map.',
           style: t.bodyMedium,
         ),
 
@@ -62,9 +58,7 @@ class StepPickup extends ConsumerWidget {
           initial: pickup,
           recent: recent,
           onSelected: (location) {
-            ref
-                .read(bookingFlowProvider.notifier)
-                .setPickup(location);
+            ref.read(bookingFlowProvider.notifier).setPickup(location);
           },
         ),
 
@@ -78,7 +72,7 @@ class StepPickup extends ConsumerWidget {
             child: GoogleMap(
               key: ValueKey(
                 '${selectedPosition.latitude}_'
-                    '${selectedPosition.longitude}',
+                '${selectedPosition.longitude}',
               ),
               initialCameraPosition: CameraPosition(
                 target: selectedPosition,
@@ -87,15 +81,15 @@ class StepPickup extends ConsumerWidget {
               markers: pickup == null
                   ? {}
                   : {
-                Marker(
-                  markerId: const MarkerId('pickup_location'),
-                  position: selectedPosition,
-                  infoWindow: InfoWindow(
-                    title: 'Pickup Location',
-                    snippet: pickup.address,
-                  ),
-                ),
-              },
+                      Marker(
+                        markerId: const MarkerId('pickup_location'),
+                        position: selectedPosition,
+                        infoWindow: InfoWindow(
+                          title: 'Pickup Location',
+                          snippet: pickup.address,
+                        ),
+                      ),
+                    },
               zoomControlsEnabled: true,
               mapToolbarEnabled: false,
               myLocationButtonEnabled: false,
@@ -114,17 +108,9 @@ class StepPickup extends ConsumerWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Icon(
-                Icons.location_on,
-                color: Colors.green,
-              ),
+              const Icon(Icons.location_on, color: Colors.green),
               const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  pickup.address,
-                  style: t.bodyMedium,
-                ),
-              ),
+              Expanded(child: Text(pickup.address, style: t.bodyMedium)),
             ],
           ),
 
@@ -132,13 +118,13 @@ class StepPickup extends ConsumerWidget {
 
           Text(
             'Pickup coordinates: '
-                '${pickup.lat}, ${pickup.lng}',
+            '${pickup.lat}, ${pickup.lng}',
             style: t.bodySmall,
           ),
         ] else
           Text(
             'Search and select an address to place '
-                'your pickup marker.',
+            'your pickup marker.',
             style: t.bodySmall,
           ),
       ],

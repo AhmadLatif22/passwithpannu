@@ -10,11 +10,11 @@ class PassWithPannuApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) => MaterialApp.router(
-        title: AppConstants.appName,
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.dark,
-        darkTheme: AppTheme.dark,
-        themeMode: ThemeMode.dark,
-        routerConfig: ref.watch(routerProvider),
-      );
+    title: AppConstants.appName,
+    debugShowCheckedModeBanner: false,
+    theme: AppTheme.dark,
+    darkTheme: AppTheme.dark,
+    themeMode: ThemeMode.dark,
+    routerConfig: ref.watch(routerProvider),
+  );
 }

@@ -8,20 +8,26 @@ import '../../../core/services/firebase_providers.dart';
 import '../data/auth_repository.dart';
 import '../domain/app_user.dart';
 
-final authRepositoryProvider = Provider<AuthRepository>((ref) => AuthRepository(
-      ref.watch(firebaseAuthProvider),
-      ref.watch(firestoreProvider),
-      ref.watch(fcmServiceProvider),
-    ));
+final authRepositoryProvider = Provider<AuthRepository>(
+  (ref) => AuthRepository(
+    ref.watch(firebaseAuthProvider),
+    ref.watch(firestoreProvider),
+    ref.watch(fcmServiceProvider),
+  ),
+);
 
 /// null = signed out. Loading = still checking on startup (splash shows).
 final authSessionProvider = StreamProvider<AuthSession?>(
   (ref) => ref.watch(authRepositoryProvider).watchSession(),
 );
 
-final currentUidProvider = Provider<String?>((ref) => ref.watch(authSessionProvider).valueOrNull?.uid);
+final currentUidProvider = Provider<String?>(
+  (ref) => ref.watch(authSessionProvider).valueOrNull?.uid,
+);
 
-final isAdminProvider = Provider<bool>((ref) => ref.watch(authSessionProvider).valueOrNull?.isAdmin ?? false);
+final isAdminProvider = Provider<bool>(
+  (ref) => ref.watch(authSessionProvider).valueOrNull?.isAdmin ?? false,
+);
 
 /// The signed-in user's profile document (users/{uid}).
 final currentUserProvider = StreamProvider<AppUser?>((ref) {
@@ -43,22 +49,32 @@ class AuthController extends AsyncNotifier<void> {
     return !state.hasError;
   }
 
-  Future<bool> signIn(String email, String password) => _run(() => _repo.signIn(email, password));
+  Future<bool> signIn(String email, String password) =>
+      _run(() => _repo.signIn(email, password));
 
   Future<bool> register({
     required String fullName,
     required String email,
     required String password,
     String? phone,
-  }) =>
-      _run(() => _repo.register(fullName: fullName, email: email, password: password, phone: phone));
+  }) => _run(
+    () => _repo.register(
+      fullName: fullName,
+      email: email,
+      password: password,
+      phone: phone,
+    ),
+  );
 
-  Future<bool> sendReset(String email) => _run(() => _repo.sendPasswordReset(email));
+  Future<bool> sendReset(String email) =>
+      _run(() => _repo.sendPasswordReset(email));
 
   Future<bool> updateProfile({required String fullName, String? phone}) {
     final uid = ref.read(currentUidProvider);
     if (uid == null) return Future.value(false);
-    return _run(() => _repo.updateProfile(uid, fullName: fullName, phone: phone));
+    return _run(
+      () => _repo.updateProfile(uid, fullName: fullName, phone: phone),
+    );
   }
 
   Future<void> signOut() async {
@@ -69,4 +85,6 @@ class AuthController extends AsyncNotifier<void> {
   void clearError() => state = const AsyncData(null);
 }
 
-final authControllerProvider = AsyncNotifierProvider<AuthController, void>(AuthController.new);
+final authControllerProvider = AsyncNotifierProvider<AuthController, void>(
+  AuthController.new,
+);

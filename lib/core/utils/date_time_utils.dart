@@ -24,19 +24,28 @@ abstract final class DateTimeUtils {
   static final _time = DateFormat('h:mm a');
   static final _monthYear = DateFormat('MMMM yyyy');
 
-  static tz.TZDateTime toBusiness(DateTime d) => tz.TZDateTime.from(d.toUtc(), _loc);
+  static tz.TZDateTime toBusiness(DateTime d) =>
+      tz.TZDateTime.from(d.toUtc(), _loc);
 
   /// Business wall-clock time -> UTC instant (what gets sent to / stored by the backend).
-  static DateTime fromBusinessParts(int y, int m, int d, int hour, int minute) =>
-      tz.TZDateTime(_loc, y, m, d, hour, minute).toUtc();
+  static DateTime fromBusinessParts(
+    int y,
+    int m,
+    int d,
+    int hour,
+    int minute,
+  ) => tz.TZDateTime(_loc, y, m, d, hour, minute).toUtc();
 
-  static DateTime startOfBusinessDay(int y, int m, int d) => fromBusinessParts(y, m, d, 0, 0);
+  static DateTime startOfBusinessDay(int y, int m, int d) =>
+      fromBusinessParts(y, m, d, 0, 0);
 
   /// "2026-10-12" in business time: groups a day's lessons.
-  static String dateKey(DateTime instant) => _dateKey.format(toBusiness(instant));
+  static String dateKey(DateTime instant) =>
+      _dateKey.format(toBusiness(instant));
 
   /// Key for a plain calendar date the user picked (no time zone conversion).
-  static String keyOfDate(DateTime plain) => _dateKey.format(DateTime(plain.year, plain.month, plain.day));
+  static String keyOfDate(DateTime plain) =>
+      _dateKey.format(DateTime(plain.year, plain.month, plain.day));
 
   static DateTime parseKey(String key) {
     final p = key.split('-').map(int.parse).toList();
@@ -57,10 +66,12 @@ abstract final class DateTimeUtils {
   static String formatMonthYear(DateTime plain) => _monthYear.format(plain);
 
   /// "10:00 AM – 12:00 PM"
-  static String formatRange(DateTime start, DateTime end) => '${formatTime(start)} – ${formatTime(end)}';
+  static String formatRange(DateTime start, DateTime end) =>
+      '${formatTime(start)} – ${formatTime(end)}';
 
   /// "Tue 14 Oct, 2:00 PM"
-  static String formatDateTime(DateTime d) => '${formatShortDate(d)}, ${formatTime(d)}';
+  static String formatDateTime(DateTime d) =>
+      '${formatShortDate(d)}, ${formatTime(d)}';
 
   /// Whole days/hours until [start], phrased for humans.
   static String untilLabel(DateTime start, DateTime now) {

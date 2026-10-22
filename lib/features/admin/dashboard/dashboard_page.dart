@@ -25,9 +25,12 @@ class DashboardPage extends ConsumerWidget {
     final pending = ref.watch(adminPendingRequestsProvider);
     final students = ref.watch(adminStudentsProvider);
     final now = DateTime.now();
-    final upcomingCount = all.valueOrNull?.where((b) => b.isUpcoming(now) && b.start.isAfter(now)).length;
+    final upcomingCount = all.valueOrNull
+        ?.where((b) => b.isUpcoming(now) && b.start.isAfter(now))
+        .length;
 
-    Widget stat(String label, int? value, IconData icon, String path) => SizedBox(
+    Widget stat(String label, int? value, IconData icon, String path) =>
+        SizedBox(
           width: 230,
           child: AppCard(
             gradient: true,
@@ -51,7 +54,29 @@ class DashboardPage extends ConsumerWidget {
         );
 
     return Scaffold(
-      appBar: AppBar(title: Text('Dashboard · ${DateTimeUtils.formatLongDate(now)}')),
+      appBar: AppBar(
+        title: Text.rich(
+          TextSpan(
+            children: [
+              const TextSpan(
+                text: 'Dashboard',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              TextSpan(
+                text: ' · ${DateTimeUtils.formatLongDate(now)}',
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w400,
+                  color: Colors.grey,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => showCreateLessonDialog(context),
         icon: const Icon(Icons.add),
@@ -64,34 +89,71 @@ class DashboardPage extends ConsumerWidget {
             spacing: AppSpacing.md,
             runSpacing: AppSpacing.md,
             children: [
-              stat('Today’s lessons', today.valueOrNull?.length, Icons.today_outlined, '/admin/diary'),
-              stat('Upcoming lessons', upcomingCount, Icons.event_available_outlined, '/admin/bookings'),
-              stat('Pending requests', pending.valueOrNull?.length, Icons.mark_email_unread_outlined, '/admin/requests'),
-              stat('Total students', students.valueOrNull?.length, Icons.groups_outlined, '/admin/students'),
+              stat(
+                'Today’s lessons',
+                today.valueOrNull?.length,
+                Icons.today_outlined,
+                '/admin/diary',
+              ),
+              stat(
+                'Upcoming lessons',
+                upcomingCount,
+                Icons.event_available_outlined,
+                '/admin/bookings',
+              ),
+              stat(
+                'Pending requests',
+                pending.valueOrNull?.length,
+                Icons.mark_email_unread_outlined,
+                '/admin/requests',
+              ),
+              stat(
+                'Total students',
+                students.valueOrNull?.length,
+                Icons.groups_outlined,
+                '/admin/students',
+              ),
             ],
           ),
           const SectionTitle('Today'),
           AsyncValueView<List<Booking>>(
             value: today,
-            loading: const SizedBox(height: 220, child: Center(child: CircularProgressIndicator())),
+            loading: const SizedBox(
+              height: 220,
+              child: Center(child: CircularProgressIndicator()),
+            ),
             onRetry: () => ref.invalidate(adminBookingsProvider),
             isEmpty: (l) => l.isEmpty,
             empty: const SizedBox(
               height: 220,
-              child: EmptyState(icon: Icons.free_breakfast_outlined, title: 'No lessons today', message: 'Enjoy the free day, or add a lesson.'),
+              child: EmptyState(
+                icon: Icons.free_breakfast_outlined,
+                title: 'No lessons today',
+                message: 'Enjoy the free day, or add a lesson.',
+              ),
             ),
             data: (items) => Column(
               children: [
                 for (final b in items)
                   Padding(
                     padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                    child: LessonCard(booking: b, showStudent: true, onTap: () => context.go('/admin/bookings/${b.id}')),
+                    child: LessonCard(
+                      booking: b,
+                      showStudent: true,
+                      onTap: () => context.go('/admin/bookings/${b.id}'),
+                    ),
                   ),
               ],
             ),
           ),
           if ((pending.valueOrNull ?? const []).isNotEmpty) ...[
-            SectionTitle('Needs your attention', trailing: TextButton(onPressed: () => context.go('/admin/requests'), child: const Text('Review all'))),
+            SectionTitle(
+              'Needs your attention',
+              trailing: TextButton(
+                onPressed: () => context.go('/admin/requests'),
+                child: const Text('Review all'),
+              ),
+            ),
             for (final r in pending.valueOrNull!.take(3))
               Padding(
                 padding: const EdgeInsets.only(bottom: AppSpacing.sm),
@@ -99,7 +161,12 @@ class DashboardPage extends ConsumerWidget {
                   onTap: () => context.go('/admin/requests'),
                   child: Row(
                     children: [
-                      Icon(r.type.name == 'cancel' ? Icons.event_busy_outlined : Icons.update, color: AppColors.info),
+                      Icon(
+                        r.type.name == 'cancel'
+                            ? Icons.event_busy_outlined
+                            : Icons.update,
+                        color: AppColors.info,
+                      ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(

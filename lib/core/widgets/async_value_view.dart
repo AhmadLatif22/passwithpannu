@@ -26,8 +26,10 @@ class AsyncValueView<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => value.when(
-        data: (d) => (empty != null && (isEmpty?.call(d) ?? false)) ? empty! : data(d),
-        loading: () => loading ?? const SkeletonList(),
-        error: (e, _) => ErrorView(message: AppFailure.from(e).message, onRetry: onRetry),
-      );
+    data: (d) =>
+        (empty != null && (isEmpty?.call(d) ?? false)) ? empty! : data(d),
+    loading: () => loading ?? const SkeletonList(),
+    error: (e, _) =>
+        ErrorView(message: AppFailure.from(e).message, onRetry: onRetry),
+  );
 }

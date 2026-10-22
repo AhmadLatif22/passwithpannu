@@ -22,7 +22,10 @@ class BookingConfirmationPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = Theme.of(context).textTheme;
     return Scaffold(
-      appBar: AppBar(title: const Text('Booking confirmed'), automaticallyImplyLeading: false),
+      appBar: AppBar(
+        title: const Text('Booking confirmed'),
+        automaticallyImplyLeading: false,
+      ),
       body: AsyncValueView<Booking?>(
         value: ref.watch(bookingByIdProvider(bookingId)),
         data: (b) {
@@ -39,8 +42,15 @@ class BookingConfirmationPage extends ConsumerWidget {
                       child: Container(
                         width: 84,
                         height: 84,
-                        decoration: BoxDecoration(color: AppColors.success.withValues(alpha: 0.16), shape: BoxShape.circle),
-                        child: Icon(confirmed ? Icons.check_rounded : Icons.hourglass_top, size: 46, color: AppColors.success),
+                        decoration: BoxDecoration(
+                          color: AppColors.success.withValues(alpha: 0.16),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          confirmed ? Icons.check_rounded : Icons.hourglass_top,
+                          size: 46,
+                          color: AppColors.success,
+                        ),
                       ),
                     ),
                     const SizedBox(height: AppSpacing.md),
@@ -51,7 +61,9 @@ class BookingConfirmationPage extends ConsumerWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      confirmed ? 'We’ve sent you a confirmation.' : 'Your instructor will confirm shortly.',
+                      confirmed
+                          ? 'We’ve sent you a confirmation.'
+                          : 'Your instructor will confirm shortly.',
                       style: t.bodyMedium,
                       textAlign: TextAlign.center,
                     ),
@@ -60,20 +72,55 @@ class BookingConfirmationPage extends ConsumerWidget {
                       gradient: true,
                       child: Column(
                         children: [
-                          InfoRow(label: 'Student', value: b.studentName, icon: Icons.person_outline),
-                          InfoRow(label: 'Lesson', value: b.lessonType.label, icon: Icons.directions_car_outlined),
-                          InfoRow(label: 'Date', value: DateTimeUtils.formatLongDate(b.start), icon: Icons.event_outlined),
-                          InfoRow(label: 'Time', value: DateTimeUtils.formatRange(b.start, b.end), icon: Icons.schedule),
-                          InfoRow(label: 'Pickup', value: b.pickupAddress, icon: Icons.place_outlined),
-                          InfoRow(label: 'Reference', value: b.reference, icon: Icons.confirmation_number_outlined),
-                          InfoRow(label: 'Status', value: '', icon: Icons.flag_outlined, trailing: BookingStatusChip(status: b.status)),
+                          InfoRow(
+                            label: 'Student',
+                            value: b.studentName,
+                            icon: Icons.person_outline,
+                          ),
+                          InfoRow(
+                            label: 'Lesson',
+                            value: b.lessonType.label,
+                            icon: Icons.directions_car_outlined,
+                          ),
+                          InfoRow(
+                            label: 'Date',
+                            value: DateTimeUtils.formatLongDate(b.start),
+                            icon: Icons.event_outlined,
+                          ),
+                          InfoRow(
+                            label: 'Time',
+                            value: DateTimeUtils.formatRange(b.start, b.end),
+                            icon: Icons.schedule,
+                          ),
+                          InfoRow(
+                            label: 'Pickup',
+                            value: b.pickupAddress,
+                            icon: Icons.place_outlined,
+                          ),
+                          InfoRow(
+                            label: 'Reference',
+                            value: b.reference,
+                            icon: Icons.confirmation_number_outlined,
+                          ),
+                          InfoRow(
+                            label: 'Status',
+                            value: '',
+                            icon: Icons.flag_outlined,
+                            trailing: BookingStatusChip(status: b.status),
+                          ),
                         ],
                       ),
                     ),
                     const SizedBox(height: AppSpacing.lg),
-                    PrimaryButton(label: 'View my lessons', onPressed: () => context.go('/lessons')),
+                    PrimaryButton(
+                      label: 'View my lessons',
+                      onPressed: () => context.go('/lessons'),
+                    ),
                     const SizedBox(height: 10),
-                    SecondaryButton(label: 'Back to home', onPressed: () => context.go('/home')),
+                    SecondaryButton(
+                      label: 'Back to home',
+                      onPressed: () => context.go('/home'),
+                    ),
                   ],
                 ),
               ),

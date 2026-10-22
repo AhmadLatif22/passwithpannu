@@ -13,30 +13,41 @@ class StudentActionAvailability {
 
 /// Pure business rules (unit-tested). The server enforces the same rules.
 abstract final class BookingRules {
-  static DateTime endTime(DateTime start, {int minutes = AppConstants.lessonDurationMinutes}) =>
-      start.add(Duration(minutes: minutes));
+  static DateTime endTime(
+    DateTime start, {
+    int minutes = AppConstants.lessonDurationMinutes,
+  }) => start.add(Duration(minutes: minutes));
 
   /// 48-hour rule: a student request needs at least [hours] of notice.
-  static bool hasEnoughNotice(DateTime start, DateTime now,
-          {int hours = AppConstants.studentChangeNoticeHours}) =>
-      start.difference(now) >= Duration(hours: hours);
+  static bool hasEnoughNotice(
+    DateTime start,
+    DateTime now, {
+    int hours = AppConstants.studentChangeNoticeHours,
+  }) => start.difference(now) >= Duration(hours: hours);
 
   static const lateMessage =
       'Changes or cancellations must normally be requested at least 48 hours before your lesson.';
 
-  static StudentActionAvailability studentActions(Booking b, DateTime now,
-      {int noticeHours = AppConstants.studentChangeNoticeHours}) {
+  static StudentActionAvailability studentActions(
+    Booking b,
+    DateTime now, {
+    int noticeHours = AppConstants.studentChangeNoticeHours,
+  }) {
     switch (b.status) {
       case BookingStatus.confirmed:
         if (!hasEnoughNotice(b.start, now, hours: noticeHours)) {
-          return const StudentActionAvailability(canRequest: false, message: lateMessage);
+          return const StudentActionAvailability(
+            canRequest: false,
+            message: lateMessage,
+          );
         }
         return const StudentActionAvailability(canRequest: true);
       case BookingStatus.changeRequested:
       case BookingStatus.cancellationRequested:
         return const StudentActionAvailability(
           canRequest: false,
-          message: 'Your request is with Pass With Pannu and will be reviewed shortly. Your lesson stays as booked until then.',
+          message:
+              'Your request is with Pass With Pannu and will be reviewed shortly. Your lesson stays as booked until then.',
         );
       case BookingStatus.pending:
         return const StudentActionAvailability(
