@@ -16,6 +16,16 @@ service cloud.firestore {
     match /users/{uid} {
       allow read: if isOwner(uid) || isAdmin();
 
+      match /progress/{progressId} {
+        allow read: if isOwner(uid) || isAdmin();
+        allow write: if isAdmin();
+      }
+
+      match /instructorPrivate/{documentId} {
+        allow read, write: if isAdmin();
+      }
+
+
       // Self-registration can only ever create an ACTIVE STUDENT profile.
       allow create: if isOwner(uid)
         && request.resource.data.keys().hasOnly(['uid', 'fullName', 'email', 'phone', 'role', 'isActive', 'createdAt', 'updatedAt'])

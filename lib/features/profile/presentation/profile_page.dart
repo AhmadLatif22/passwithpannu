@@ -37,18 +37,13 @@ class ProfilePage extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   if (user != null) _ProfileForm(user: user),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
                   OutlinedButton.icon(
                     onPressed: () => context.push('/terms'),
                     icon: const Icon(Icons.description_outlined),
                     label: const Text('Terms & Conditions'),
                   ),
                   const SizedBox(height: 12),
-                  OutlinedButton.icon(
-                    onPressed: () => context.push('/progress'),
-                    icon: const Icon(Icons.trending_up),
-                    label: const Text('My Driving Progress'),
-                  ),
                   if (denied) ...[
                     const SizedBox(height: AppSpacing.md),
                     const AppCard(
@@ -81,7 +76,6 @@ class ProfilePage extends ConsumerWidget {
                     const SizedBox(height: 10),
                   ],
 
-                  const SizedBox(height: AppSpacing.lg),
                   SecondaryButton(
                     label: 'Sign out',
                     icon: Icons.logout,

@@ -13,13 +13,16 @@ import '../../bookings/domain/booking.dart';
 import '../../lesson_requests/presentation/request_providers.dart';
 import '../bookings/create_lesson_dialog.dart';
 import '../shared/admin_providers.dart';
+import '../../notifications/presentation/notification_providers.dart';
 
+const _paper = Color(0xFFF5F7FA);
 /// Instructor dashboard. Uses the existing application palette and providers.
 class DashboardPage extends ConsumerWidget {
   const DashboardPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final unreadCount = ref.watch(unreadNotificationsProvider);
     final today = ref.watch(todaysLessonsProvider);
     final bookings = ref.watch(adminBookingsProvider);
     final pending = ref.watch(adminPendingRequestsProvider);
@@ -31,15 +34,32 @@ class DashboardPage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Instructor dashboard'),
+        title: const Text('Instructor dashboard', style: TextStyle(
+          color: _paper, fontSize: 14, fontWeight: FontWeight.w800,
+          letterSpacing: 2.4,
+        )),
+
         actions: [
+
           IconButton(
-            tooltip: 'Manage students',
-            icon: const Icon(Icons.people_outline_rounded),
-            onPressed: () => context.go('/admin/students'),
+            tooltip: 'Notifications',
+            onPressed: () {
+              context.push('/admin/notifications');
+            },
+            icon: Badge(
+              isLabelVisible: unreadCount > 0,
+              smallSize: 8,
+              backgroundColor: Colors.red,
+              child: const Icon(
+                Icons.notifications_none_rounded,
+                color: Colors.white,
+                size: 26,
+              ),
+            ),
           ),
-          const SizedBox(width: 4),
+          const SizedBox(width: 6),
         ],
+
       ),
       body: RefreshIndicator(
         onRefresh: () async {

@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 
 /// The student's public progress summary. Private instructor notes are never
 /// stored in this document and must be protected by server-side Firestore rules.
@@ -87,12 +89,6 @@ class ProgressPage extends StatelessWidget {
               section('Doing well', 'strengths'),
               section('Areas to improve', 'improvements'),
               section('Working on next', 'nextSteps'),
-              const Padding(
-                padding: EdgeInsets.all(12),
-                child: Text(
-                  'Progress reflects your instructor’s assessment, not an official test result.',
-                ),
-              ),
             ],
           );
         },
