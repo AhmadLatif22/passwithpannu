@@ -11,6 +11,10 @@ import '../../../core/widgets/dialogs.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/primary_button.dart';
 import '../../lesson_requests/domain/booking_request.dart';
+import '../../bookings/domain/booking.dart';
+import '../../bookings/domain/booking_status.dart';
+import '../../../core/widgets/lesson_card.dart';
+import '../shared/admin_providers.dart';
 import '../../lesson_requests/presentation/request_providers.dart';
 import '../shared/admin_actions.dart';
 
@@ -20,47 +24,112 @@ class RequestsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final pending = ref.watch(adminPendingRequestsProvider);
+    final pendingBookings = ref
+        .watch(adminBookingsProvider)
+        .whenData(
+          (bookings) =>
+              bookings.where((b) => b.status == BookingStatus.pending).toList()
+                ..sort((a, b) => a.start.compareTo(b.start)),
+        );
+    final cancellations = pending.whenData(
+      (items) => items.where((r) => r.type == RequestType.cancel).toList(),
+    );
+    final changes = pending.whenData(
+      (items) => items.where((r) => r.type == RequestType.reschedule).toList(),
+    );
+    final handled = ref
+        .watch(adminRecentRequestsProvider)
+        .whenData(
+          (items) =>
+              items.where((r) => r.status != RequestStatus.pending).toList(),
+        );
+
+    Widget bookingList() => AsyncValueView<List<Booking>>(
+      value: pendingBookings,
+      onRetry: () => ref.invalidate(adminBookingsProvider),
+      isEmpty: (items) => items.isEmpty,
+      empty: const EmptyState(
+        icon: Icons.event_note_outlined,
+        title: 'No pending booking approvals',
+      ),
+      data: (items) => ListView.separated(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        itemCount: items.length,
+        separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
+        itemBuilder: (context, index) {
+          final booking = items[index];
+          return Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 820),
+              child: LessonCard(
+                booking: booking,
+                showStudent: true,
+                onTap: () => context.go('/admin/bookings/${booking.id}'),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+
+    Widget requestList(AsyncValue<List<BookingRequest>> value, String title) =>
+        AsyncValueView<List<BookingRequest>>(
+          value: value,
+          onRetry: () {
+            ref.invalidate(adminPendingRequestsProvider);
+            ref.invalidate(adminRecentRequestsProvider);
+          },
+          isEmpty: (items) => items.isEmpty,
+          empty: EmptyState(icon: Icons.inbox_outlined, title: title),
+          data: (items) => _RequestList(items: items, actionable: true),
+        );
+
     return DefaultTabController(
-      length: 2,
+      length: 5,
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Requests'),
-          bottom: TabBar(
+          bottom: const TabBar(
+            isScrollable: true,
             tabs: [
-              Tab(
-                text:
-                    'Pending${pending.valueOrNull == null ? '' : ' (${pending.valueOrNull!.length})'}',
-              ),
-              const Tab(text: 'History'),
+              Tab(text: 'All'),
+              Tab(text: 'Booking approvals'),
+              Tab(text: 'Changes'),
+              Tab(text: 'Cancellations'),
+              Tab(text: 'History'),
             ],
           ),
         ),
         body: TabBarView(
           children: [
-            AsyncValueView<List<BookingRequest>>(
-              value: pending,
-              onRetry: () => ref.invalidate(adminPendingRequestsProvider),
-              isEmpty: (l) => l.isEmpty,
-              empty: const EmptyState(
-                icon: Icons.inbox_outlined,
-                title: 'No pending change requests',
-                message: 'Student requests will show up here.',
-              ),
-              data: (items) => _RequestList(items: items, actionable: true),
+            // The All tab contains all pending approvals, changes and cancellations.
+            ListView(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              children: [
+                const ListTile(title: Text('Booking approvals')),
+                SizedBox(height: 260, child: bookingList()),
+                const ListTile(title: Text('Pending changes')),
+                SizedBox(
+                  height: 260,
+                  child: requestList(changes, 'No pending changes'),
+                ),
+                const ListTile(title: Text('Pending cancellations')),
+                SizedBox(
+                  height: 260,
+                  child: requestList(cancellations, 'No pending cancellations'),
+                ),
+              ],
             ),
+            bookingList(),
+            requestList(changes, 'No pending changes'),
+            requestList(cancellations, 'No pending cancellations'),
             AsyncValueView<List<BookingRequest>>(
-              value: ref
-                  .watch(adminRecentRequestsProvider)
-                  .whenData(
-                    (l) => l
-                        .where((r) => r.status != RequestStatus.pending)
-                        .toList(),
-                  ),
+              value: handled,
               onRetry: () => ref.invalidate(adminRecentRequestsProvider),
-              isEmpty: (l) => l.isEmpty,
+              isEmpty: (items) => items.isEmpty,
               empty: const EmptyState(
                 icon: Icons.history,
-                title: 'No handled requests yet',
+                title: 'No request history',
               ),
               data: (items) => _RequestList(items: items, actionable: false),
             ),

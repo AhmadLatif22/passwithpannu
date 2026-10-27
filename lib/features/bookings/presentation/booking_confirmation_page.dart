@@ -23,7 +23,7 @@ class BookingConfirmationPage extends ConsumerWidget {
     final t = Theme.of(context).textTheme;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Booking confirmed'),
+        title: const Text('Booking request'),
         automaticallyImplyLeading: false,
       ),
       body: AsyncValueView<Booking?>(
@@ -63,7 +63,7 @@ class BookingConfirmationPage extends ConsumerWidget {
                     Text(
                       confirmed
                           ? 'We’ve sent you a confirmation.'
-                          : 'Your instructor will confirm shortly.',
+                          : 'Your request is pending instructor approval. You will be notified when it is approved or declined.',
                       style: t.bodyMedium,
                       textAlign: TextAlign.center,
                     ),

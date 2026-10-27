@@ -15,13 +15,32 @@ class StepReview extends ConsumerWidget {
     final t = Theme.of(context).textTheme;
     final d = ref.watch(bookingFlowProvider);
     final name = ref.watch(currentUserProvider).valueOrNull?.fullName ?? '';
-    final slot = d.slot!;
+
+    final slot = d.slot;
+    final lessonType = d.lessonType;
+    final pickup = d.pickup;
+
+    if (slot == null || lessonType == null || pickup == null) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(20),
+          child: Text(
+            'Booking details are being updated...',
+            textAlign: TextAlign.center,
+          ),
+        ),
+      );
+    }
+
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.md),
       children: [
         Text('Review your booking', style: t.headlineMedium),
         const SizedBox(height: 4),
-        Text('Check everything below, then confirm.', style: t.bodyMedium),
+        Text(
+          'Check your preferred lesson details before sending them to your instructor.',
+          style: t.bodyMedium,
+        ),
         const SizedBox(height: AppSpacing.lg),
         AppCard(
           gradient: true,
@@ -34,7 +53,7 @@ class StepReview extends ConsumerWidget {
               ),
               InfoRow(
                 label: 'Lesson',
-                value: '${d.lessonType!.label} · 2 hours',
+                value: '${lessonType.label} · 2 hours',
                 icon: Icons.directions_car_outlined,
               ),
               InfoRow(
@@ -49,7 +68,7 @@ class StepReview extends ConsumerWidget {
               ),
               InfoRow(
                 label: 'Pickup',
-                value: d.pickup!.address,
+                value: pickup.address,
                 icon: Icons.place_outlined,
               ),
             ],
@@ -57,7 +76,7 @@ class StepReview extends ConsumerWidget {
         ),
         const SizedBox(height: AppSpacing.md),
         Text(
-          'Once confirmed, you can’t move the lesson yourself. You can request a change or cancellation at least 48 hours before it starts, and your instructor will approve or decline it.',
+          'Submitting this request does not confirm a booking. Your instructor must approve the selected date and time. Once approved, the 48-hour change and cancellation policy applies.',
           style: t.bodySmall,
         ),
       ],

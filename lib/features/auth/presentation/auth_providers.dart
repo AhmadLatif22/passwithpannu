@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/services/fcm_service.dart';
-import '../../../app/app_mode.dart';
 import '../../../core/services/firebase_providers.dart';
 import '../data/auth_repository.dart';
 import '../domain/app_user.dart';
@@ -78,7 +77,6 @@ class AuthController extends AsyncNotifier<void> {
   }
 
   Future<void> signOut() async {
-    ref.read(adminViewAsStudentProvider.notifier).state = false;
     await _repo.signOut(ref.read(currentUidProvider));
   }
 

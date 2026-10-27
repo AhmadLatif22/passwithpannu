@@ -24,6 +24,8 @@ class _EditProgressPageState extends State<EditProgressPage> {
       k: TextEditingController(),
   };
   bool saving = false;
+  double? automaticHours;
+  bool manualHours = false;
   @override
   void initState() {
     super.initState();
@@ -38,15 +40,64 @@ class _EditProgressPageState extends State<EditProgressPage> {
       final results = await Future.wait([
         base.collection('progress').doc('summary').get(),
         base.collection('instructorPrivate').doc('progress').get(),
+        FirebaseFirestore.instance
+            .collection('bookings')
+            .where('studentId', isEqualTo: widget.studentId)
+            .get(),
       ]);
       if (!mounted) return;
-      final d = results[0].data() ?? {};
+      final progressSnapshot =
+          results[0] as DocumentSnapshot<Map<String, dynamic>>;
+
+      final privateSnapshot =
+          results[1] as DocumentSnapshot<Map<String, dynamic>>;
+
+      final bookingsSnapshot =
+          results[2] as QuerySnapshot<Map<String, dynamic>>;
+
+      final d = progressSnapshot.data() ?? <String, dynamic>{};
+
+      final double hours = bookingsSnapshot.docs.fold<double>(0.0, (sum, doc) {
+        final data = doc.data();
+
+        if (data['status'] != 'completed') {
+          return sum;
+        }
+
+        final start = data['startDateTime'];
+        final end = data['endDateTime'];
+
+        if (start is! Timestamp || end is! Timestamp) {
+          return sum;
+        }
+
+        final duration =
+            end.toDate().difference(start.toDate()).inMinutes / 60.0;
+
+        return sum + (duration > 0 ? duration : 0);
+      });
+
+      automaticHours = hours;
+
+      manualHours = d['completedHoursOverride'] is num;
+
+      final privateData = privateSnapshot.data() ?? <String, dynamic>{};
+
       for (final k in fields.keys) {
-        final v = k == 'privateNotes'
-            ? (results[1].data() ?? {})['notes']
-            : d[k];
-        fields[k]!.text = v?.toString() ?? '';
+        final dynamic value;
+
+        if (k == 'privateNotes') {
+          value = privateData['notes'];
+        } else if (k == 'completedHours') {
+          value = manualHours ? d['completedHoursOverride'] : hours;
+        } else {
+          value = d[k];
+        }
+
+        fields[k]!.text = value?.toString() ?? '';
       }
+
+      setState(() {});
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(
@@ -80,7 +131,8 @@ class _EditProgressPageState extends State<EditProgressPage> {
           .doc(widget.studentId);
       final batch = FirebaseFirestore.instance.batch();
       batch.set(base.collection('progress').doc('summary'), {
-        'completedHours': hours,
+        'completedHours': manualHours ? hours : (automaticHours ?? hours),
+        'completedHoursOverride': manualHours ? hours : FieldValue.delete(),
         'testReadinessPercent': readiness,
         for (final k in ['covered', 'strengths', 'improvements', 'nextSteps'])
           k: fields[k]!.text.trim(),
@@ -125,9 +177,29 @@ class _EditProgressPageState extends State<EditProgressPage> {
     body: ListView(
       padding: const EdgeInsets.all(16),
       children: [
+        if (automaticHours != null) ...[
+          Text(
+            'Automatically calculated from completed lessons: ${automaticHours!.toStringAsFixed(1)} hours',
+          ),
+          SwitchListTile(
+            title: const Text('Manually adjust completed hours'),
+            subtitle: const Text(
+              'When off, completed lessons determine the total.',
+            ),
+            value: manualHours,
+            onChanged: (v) => setState(() {
+              manualHours = v;
+              if (!v) {
+                fields['completedHours']!.text = automaticHours!
+                    .toStringAsFixed(1);
+              }
+            }),
+          ),
+        ],
         for (final entry in fields.entries) ...[
           TextField(
             controller: entry.value,
+            readOnly: entry.key == 'completedHours' && !manualHours,
             keyboardType:
                 ['completedHours', 'testReadinessPercent'].contains(entry.key)
                 ? TextInputType.number

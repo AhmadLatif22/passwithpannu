@@ -36,7 +36,7 @@ class LessonsPage extends ConsumerWidget {
                 icon: Icons.event_available_outlined,
                 title: 'No upcoming lessons',
                 message: 'Book your next lesson and keep your learning moving.',
-                actionLabel: 'Book a lesson',
+                actionLabel: 'Request a Lesson',
                 onAction: () => context.go('/book'),
               ),
             ),

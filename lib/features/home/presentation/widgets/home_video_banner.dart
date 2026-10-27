@@ -1,6 +1,55 @@
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
+
+/// The packaged video is initialized once and reused when Home is rebuilt.
+/// Call prewarm() after the first Flutter frame to reduce startup delay.
+class HomeVideoPreloader {
+  HomeVideoPreloader._();
+  static final HomeVideoPreloader instance = HomeVideoPreloader._();
+
+  VideoPlayerController? _controller;
+  Future<VideoPlayerController>? _initialization;
+
+  Future<VideoPlayerController> get ready => _initialization ??= _start();
+
+  void prewarm() {
+    unawaited(
+      ready.then<void>((_) {}).catchError((Object error) {
+        debugPrint('Home video prewarm failed: $error');
+      }),
+    );
+  }
+
+  Future<VideoPlayerController> _start() async {
+    final controller = VideoPlayerController.asset(
+      'assets/videos/driving_intro.mp4',
+    );
+    _controller = controller;
+    try {
+      await controller.initialize();
+      await controller.setLooping(true);
+      await controller.setVolume(0);
+      await controller.play();
+      return controller;
+    } catch (_) {
+      _controller = null;
+      _initialization = null; // Allow retry on next visit.
+      await controller.dispose();
+      rethrow;
+    }
+  }
+
+  Future<void> resume() async {
+    final controller = _controller;
+    if (controller != null &&
+        controller.value.isInitialized &&
+        !controller.value.isPlaying) {
+      await controller.play();
+    }
+  }
+}
 
 class HomeVideoBanner extends StatefulWidget {
   const HomeVideoBanner({super.key});
@@ -9,148 +58,84 @@ class HomeVideoBanner extends StatefulWidget {
   State<HomeVideoBanner> createState() => _HomeVideoBannerState();
 }
 
-class _HomeVideoBannerState extends State<HomeVideoBanner> {
-  late final VideoPlayerController _controller;
-  bool _isReady = false;
-  bool _hasError = false;
+class _HomeVideoBannerState extends State<HomeVideoBanner>
+    with WidgetsBindingObserver, AutomaticKeepAliveClientMixin {
+  late final Future<VideoPlayerController> _ready;
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
     super.initState();
-
-    _controller = VideoPlayerController.asset(
-      'assets/videos/driving_intro.mp4',
-    );
-
-    _initializeVideo();
+    WidgetsBinding.instance.addObserver(this);
+    _ready = HomeVideoPreloader.instance.ready;
   }
 
-  Future<void> _initializeVideo() async {
-    try {
-      await _controller.initialize();
-      await _controller.setLooping(true);
-      await _controller.setVolume(0);
-      await _controller.play();
-
-      if (mounted) {
-        setState(() => _isReady = true);
-      }
-    } catch (_) {
-      if (mounted) {
-        setState(() => _hasError = true);
-      }
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      unawaited(HomeVideoPreloader.instance.resume());
     }
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return ClipRRect(
       borderRadius: BorderRadius.circular(18),
       child: AspectRatio(
         aspectRatio: 16 / 9,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            Container(
-              color: const Color(0xFF171B28),
-              child: _isReady
-                  ? FittedBox(
-                fit: BoxFit.cover,
-                child: SizedBox(
-                  width: _controller.value.size.width,
-                  height: _controller.value.size.height,
-                  child: VideoPlayer(_controller),
+        child: FutureBuilder<VideoPlayerController>(
+          future: _ready,
+          builder: (context, snapshot) {
+            return Stack(
+              fit: StackFit.expand,
+              children: [
+                const ColoredBox(color: Color(0xFF171B28)),
+                if (snapshot.hasData)
+                  FittedBox(
+                    fit: BoxFit.cover,
+                    child: SizedBox(
+                      width: snapshot.data!.value.size.width,
+                      height: snapshot.data!.value.size.height,
+                      child: VideoPlayer(snapshot.data!),
+                    ),
+                  )
+                else
+                  Center(
+                    child: snapshot.hasError
+                        ? const Icon(
+                            Icons.videocam_off_outlined,
+                            color: Colors.white54,
+                            size: 32,
+                          )
+                        : const Icon(
+                            Icons.play_circle_outline_rounded,
+                            color: Colors.white70,
+                            size: 42,
+                          ),
+                  ),
+                const IgnorePointer(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [Colors.transparent, Color(0x990B0D14)],
+                      ),
+                    ),
+                  ),
                 ),
-              )
-                  : Center(
-                child: _hasError
-                    ? const Icon(
-                  Icons.videocam_off_outlined,
-                  color: Colors.white54,
-                  size: 32,
-                )
-                    : const CircularProgressIndicator(
-                  color: Color(0xFF18D67B),
-                ),
-              ),
-            ),
-
-            // Subtle dark gradient for premium appearance
-            // const IgnorePointer(
-            //   child: DecoratedBox(
-            //     decoration: BoxDecoration(
-            //       gradient: LinearGradient(
-            //         begin: Alignment.topCenter,
-            //         end: Alignment.bottomCenter,
-            //         colors: [
-            //           Colors.transparent,
-            //           Color(0x990B0D14),
-            //         ],
-            //       ),
-            //     ),
-            //   ),
-            // ),
-
-            // Branding
-            // const Positioned(
-            //   left: 16,
-            //   bottom: 16,
-            //   child: Column(
-            //     crossAxisAlignment: CrossAxisAlignment.start,
-            //     children: [
-            //       Text(
-            //         'PASS WITH PANNU',
-            //         style: TextStyle(
-            //           color: Colors.white,
-            //           fontSize: 18,
-            //           fontWeight: FontWeight.w800,
-            //           letterSpacing: 1.2,
-            //         ),
-            //       ),
-            //       SizedBox(height: 4),
-            //       Text(
-            //         'Your journey to driving confidence',
-            //         style: TextStyle(
-            //           color: Color(0xFFE0E6F0),
-            //           fontSize: 12,
-            //         ),
-            //       ),
-            //     ],
-            //   ),
-            // ),
-
-            // Play/pause control
-            // if (_isReady)
-            //   Positioned(
-            //     right: 12,
-            //     bottom: 12,
-            //     child: IconButton.filledTonal(
-            //       tooltip: _controller.value.isPlaying
-            //           ? 'Pause video'
-            //           : 'Play video',
-            //       onPressed: () async {
-            //         if (_controller.value.isPlaying) {
-            //           await _controller.pause();
-            //         } else {
-            //           await _controller.play();
-            //         }
-            //
-            //         if (mounted) setState(() {});
-            //       },
-            //       icon: Icon(
-            //         _controller.value.isPlaying
-            //             ? Icons.pause_rounded
-            //             : Icons.play_arrow_rounded,
-            //       ),
-            //     ),
-            //   ),
-          ],
+              ],
+            );
+          },
         ),
       ),
     );

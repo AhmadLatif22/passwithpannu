@@ -30,9 +30,9 @@ import '../../features/profile/presentation/profile_page.dart';
 import '../../features/progress/progress_page.dart';
 import '../../features/progress/edit_progress_page.dart';
 import '../../features/terms/terms_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 const _authPages = {'/login', '/forgot'};
-final adminViewAsStudentProvider = StateProvider<bool>((ref) => false);
 
 /// Auth + role guard:
 ///  * session loading  -> /splash (no flash of the wrong screen)
@@ -43,40 +43,65 @@ final adminViewAsStudentProvider = StateProvider<bool>((ref) => false);
 final routerProvider = Provider<GoRouter>((ref) {
   final refresh = ValueNotifier<int>(0);
   ref.listen(authSessionProvider, (_, __) => refresh.value++);
-  ref.listen(adminViewAsStudentProvider, (_, __) => refresh.value++);
   ref.listen(currentUserProvider, (_, __) => refresh.value++);
   ref.onDispose(refresh.dispose);
 
   String? redirect(BuildContext context, GoRouterState state) {
     final session = ref.read(authSessionProvider);
     final loc = state.matchedLocation;
+    final firebaseUser = FirebaseAuth.instance.currentUser;
 
-    if (session.isLoading) return loc == '/splash' ? null : '/splash';
+    if (session.isLoading || session.hasError) {
+      return loc == '/splash' ? null : '/splash';
+    }
+
     final s = session.valueOrNull;
-    if (s == null) return _authPages.contains(loc) ? null : '/login';
 
-    // Students must accept the currently bundled policy before any app routes.
-    // Do not rely on client routing alone; backend rules must also enforce this.
+    if (s == null) {
+      if (firebaseUser != null) {
+        return loc == '/splash' ? null : '/splash';
+      }
+
+      return _authPages.contains(loc) ? null : '/login';
+    }
+
     if (!s.isAdmin) {
       final profile = ref.read(currentUserProvider);
-      if (profile.isLoading) return loc == '/splash' ? null : '/splash';
+
+      if (profile.isLoading || profile.hasError) {
+        return loc == '/splash' ? null : '/splash';
+      }
+
       final p = profile.valueOrNull;
-      if (p == null) return loc == '/unauthorized' ? null : '/unauthorized';
-      // Before acceptance, only the terms screen can be visited.
+
+      if (p == null) {
+        return loc == '/unauthorized' ? null : '/unauthorized';
+      }
+
       if (p.termsVersion != '1.1' || !p.isActive) {
         return loc == '/terms/accept' ? null : '/terms/accept';
       }
-      if (loc == '/terms/accept') return '/home';
+
+      if (loc == '/terms/accept') {
+        return '/home';
+      }
     }
 
-    // One binary supports both roles; admin claim determines access.
-
-    final asStudent = s.isAdmin && ref.read(adminViewAsStudentProvider);
-    final inAdminArea = s.isAdmin && !asStudent;
+    final inAdminArea = s.isAdmin;
     final home = inAdminArea ? '/admin' : '/home';
-    if (loc == '/splash' || _authPages.contains(loc)) return home;
-    if (inAdminArea && !loc.startsWith('/admin')) return '/admin';
-    if (!inAdminArea && loc.startsWith('/admin')) return '/home';
+
+    if (loc == '/splash' || _authPages.contains(loc)) {
+      return home;
+    }
+
+    if (inAdminArea && !loc.startsWith('/admin')) {
+      return '/admin';
+    }
+
+    if (!inAdminArea && loc.startsWith('/admin')) {
+      return '/home';
+    }
+
     return null;
   }
 

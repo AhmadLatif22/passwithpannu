@@ -10,12 +10,15 @@ import '../../../core/widgets/async_value_view.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/lesson_card.dart';
 import '../../bookings/domain/booking.dart';
+import '../../bookings/domain/booking_status.dart';
 import '../../lesson_requests/presentation/request_providers.dart';
+import '../../lesson_requests/domain/booking_request.dart';
 import '../bookings/create_lesson_dialog.dart';
 import '../shared/admin_providers.dart';
 import '../../notifications/presentation/notification_providers.dart';
 
 const _paper = Color(0xFFF5F7FA);
+
 /// Instructor dashboard. Uses the existing application palette and providers.
 class DashboardPage extends ConsumerWidget {
   const DashboardPage({super.key});
@@ -26,21 +29,37 @@ class DashboardPage extends ConsumerWidget {
     final today = ref.watch(todaysLessonsProvider);
     final bookings = ref.watch(adminBookingsProvider);
     final pending = ref.watch(adminPendingRequestsProvider);
+    final pendingBookings =
+        bookings.valueOrNull
+            ?.where((b) => b.status == BookingStatus.pending)
+            .toList() ??
+        <Booking>[];
+    pendingBookings.sort((a, b) => a.start.compareTo(b.start));
+    final pendingCount =
+        bookings.valueOrNull == null || pending.valueOrNull == null
+        ? null
+        : pendingBookings.length + pending.valueOrNull!.length;
     final students = ref.watch(adminStudentsProvider);
     final now = DateTime.now();
     final upcomingCount = bookings.valueOrNull
-        ?.where((booking) => booking.isUpcoming(now) && booking.start.isAfter(now))
+        ?.where(
+          (booking) => booking.isUpcoming(now) && booking.start.isAfter(now),
+        )
         .length;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Instructor dashboard', style: TextStyle(
-          color: _paper, fontSize: 14, fontWeight: FontWeight.w800,
-          letterSpacing: 2.4,
-        )),
+        title: const Text(
+          'Instructor dashboard',
+          style: TextStyle(
+            color: _paper,
+            fontSize: 14,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 2.4,
+          ),
+        ),
 
         actions: [
-
           IconButton(
             tooltip: 'Notifications',
             onPressed: () {
@@ -59,7 +78,6 @@ class DashboardPage extends ConsumerWidget {
           ),
           const SizedBox(width: 6),
         ],
-
       ),
       body: RefreshIndicator(
         onRefresh: () async {
@@ -87,18 +105,41 @@ class DashboardPage extends ConsumerWidget {
                       const SizedBox(height: 20),
                       _StatGrid(
                         items: [
-                          _StatInfo('Today’s lessons', today.valueOrNull?.length,
-                              Icons.today_outlined, '/admin/diary', AppColors.primary),
-                          _StatInfo('Upcoming', upcomingCount,
-                              Icons.event_available_outlined, '/admin/bookings', AppColors.brandGreen),
-                          _StatInfo('Pending requests', pending.valueOrNull?.length,
-                              Icons.pending_actions_outlined, '/admin/requests', AppColors.warning),
-                          _StatInfo('Students', students.valueOrNull?.length,
-                              Icons.groups_outlined, '/admin/students', AppColors.info),
+                          _StatInfo(
+                            'Today’s lessons',
+                            today.valueOrNull?.length,
+                            Icons.today_outlined,
+                            '/admin/diary',
+                            AppColors.primary,
+                          ),
+                          _StatInfo(
+                            'Upcoming',
+                            upcomingCount,
+                            Icons.event_available_outlined,
+                            '/admin/bookings',
+                            AppColors.brandGreen,
+                          ),
+                          _StatInfo(
+                            'Pending requests',
+                            pendingCount,
+                            Icons.pending_actions_outlined,
+                            '/admin/requests',
+                            AppColors.warning,
+                          ),
+                          _StatInfo(
+                            'Students',
+                            students.valueOrNull?.length,
+                            Icons.groups_outlined,
+                            '/admin/students',
+                            AppColors.info,
+                          ),
                         ],
                       ),
                       const SizedBox(height: 26),
-                      const _SectionHeader(title: 'Quick actions', subtitle: 'Manage your day in a tap'),
+                      const _SectionHeader(
+                        title: 'Quick actions',
+                        subtitle: 'Manage your day in a tap',
+                      ),
                       const SizedBox(height: 12),
                       _QuickActions(
                         onAddLesson: () => showCreateLessonDialog(context),
@@ -128,13 +169,16 @@ class DashboardPage extends ConsumerWidget {
                                 child: LessonCard(
                                   booking: booking,
                                   showStudent: true,
-                                  onTap: () => context.go('/admin/bookings/${booking.id}'),
+                                  onTap: () => context.go(
+                                    '/admin/bookings/${booking.id}',
+                                  ),
                                 ),
                               ),
                           ],
                         ),
                       ),
-                      if ((pending.valueOrNull ?? const []).isNotEmpty) ...[
+                      if (pendingBookings.isNotEmpty ||
+                          (pending.valueOrNull ?? const []).isNotEmpty) ...[
                         const SizedBox(height: 24),
                         _SectionHeader(
                           title: 'Needs your attention',
@@ -143,7 +187,23 @@ class DashboardPage extends ConsumerWidget {
                           onAction: () => context.go('/admin/requests'),
                         ),
                         const SizedBox(height: 12),
-                        for (final request in pending.valueOrNull!.take(3))
+                        for (final booking in pendingBookings.take(3))
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 10),
+                            child: LessonCard(
+                              booking: booking,
+                              showStudent: true,
+                              onTap: () =>
+                                  context.go('/admin/bookings/${booking.id}'),
+                            ),
+                          ),
+                        for (final request
+                            in (pending.valueOrNull ?? const <BookingRequest>[])
+                                .take(
+                                  pendingBookings.length >= 3
+                                      ? 0
+                                      : 3 - pendingBookings.length,
+                                ))
                           Padding(
                             padding: const EdgeInsets.only(bottom: 10),
                             child: AppCard(
@@ -159,21 +219,29 @@ class DashboardPage extends ConsumerWidget {
                                   const SizedBox(width: 12),
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           request.studentName,
-                                          style: Theme.of(context).textTheme.titleSmall,
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.titleSmall,
                                         ),
                                         const SizedBox(height: 3),
                                         Text(
                                           '${request.type.label} • ${DateTimeUtils.formatDateTime(request.currentStart)}',
-                                          style: Theme.of(context).textTheme.bodySmall,
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.bodySmall,
                                         ),
                                       ],
                                     ),
                                   ),
-                                  const Icon(Icons.chevron_right, color: AppColors.textMuted),
+                                  const Icon(
+                                    Icons.chevron_right,
+                                    color: AppColors.textMuted,
+                                  ),
                                 ],
                               ),
                             ),
@@ -203,7 +271,9 @@ class _WelcomeHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hour = DateTimeUtils.toBusiness(now).hour;
-    final greeting = hour < 12 ? 'Good morning' : (hour < 18 ? 'Good afternoon' : 'Good evening');
+    final greeting = hour < 12
+        ? 'Good morning'
+        : (hour < 18 ? 'Good afternoon' : 'Good evening');
     final textTheme = Theme.of(context).textTheme;
     return Container(
       padding: const EdgeInsets.all(20),
@@ -218,16 +288,35 @@ class _WelcomeHeader extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(greeting, style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)),
+                Text(
+                  greeting,
+                  style: textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
                 const SizedBox(height: 6),
-                Text('Here’s your teaching overview', style: textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary)),
+                Text(
+                  'Here’s your teaching overview',
+                  style: textTheme.bodyMedium?.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
                 const SizedBox(height: 10),
-                Text(DateTimeUtils.formatLongDate(now), style: textTheme.labelMedium?.copyWith(color: AppColors.brandGreen)),
+                Text(
+                  DateTimeUtils.formatLongDate(now),
+                  style: textTheme.labelMedium?.copyWith(
+                    color: AppColors.brandGreen,
+                  ),
+                ),
               ],
             ),
           ),
           const SizedBox(width: 12),
-          const _IconTile(icon: Icons.directions_car_filled_outlined, color: AppColors.primary, large: true),
+          const _IconTile(
+            icon: Icons.directions_car_filled_outlined,
+            color: AppColors.primary,
+            large: true,
+          ),
         ],
       ),
     );
@@ -249,52 +338,59 @@ class _StatGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => LayoutBuilder(
-        builder: (context, constraints) {
-          final cols = constraints.maxWidth >= 760 ? 4 : 2;
-          return GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: items.length,
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: cols,
-              mainAxisSpacing: 12,
-              crossAxisSpacing: 12,
-              mainAxisExtent: 132,
-            ),
-            itemBuilder: (context, index) {
-              final item = items[index];
-              return Material(
-                color: AppColors.surface,
-                borderRadius: BorderRadius.circular(18),
-                child: InkWell(
+    builder: (context, constraints) {
+      final cols = constraints.maxWidth >= 760 ? 4 : 2;
+      return GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: items.length,
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: cols,
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
+          mainAxisExtent: 132,
+        ),
+        itemBuilder: (context, index) {
+          final item = items[index];
+          return Material(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(18),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(18),
+              onTap: () => context.go(item.path),
+              child: Container(
+                padding: const EdgeInsets.all(15),
+                decoration: BoxDecoration(
+                  border: Border.all(color: AppColors.outline),
                   borderRadius: BorderRadius.circular(18),
-                  onTap: () => context.go(item.path),
-                  child: Container(
-                    padding: const EdgeInsets.all(15),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: AppColors.outline),
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Icon(item.icon, color: item.color, size: 25),
-                        Text(item.value?.toString() ?? '—',
-                            style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w800)),
-                        Text(item.label,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary)),
-                      ],
-                    ),
-                  ),
                 ),
-              );
-            },
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Icon(item.icon, color: item.color, size: 25),
+                    Text(
+                      item.value?.toString() ?? '—',
+                      style: Theme.of(context).textTheme.headlineMedium
+                          ?.copyWith(fontWeight: FontWeight.w800),
+                    ),
+                    Text(
+                      item.label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           );
         },
       );
+    },
+  );
 }
 
 class _QuickActions extends StatelessWidget {
@@ -303,29 +399,51 @@ class _QuickActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => LayoutBuilder(
-        builder: (context, constraints) {
-          final narrow = constraints.maxWidth < 560;
-          final buttons = <Widget>[
-            _ActionButton(icon: Icons.add_circle_outline_rounded, label: 'Add lesson', onTap: onAddLesson, prominent: true),
-            _ActionButton(icon: Icons.groups_outlined, label: 'Students', onTap: () => context.go('/admin/students')),
-            _ActionButton(icon: Icons.calendar_month_outlined, label: 'Diary', onTap: () => context.go('/admin/diary')),
-            _ActionButton(icon: Icons.event_busy_outlined, label: 'Availability', onTap: () => context.go('/admin/availability')),
-          ];
-          return GridView.count(
-            crossAxisCount: narrow ? 2 : 4,
-            mainAxisSpacing: 10,
-            crossAxisSpacing: 10,
-            childAspectRatio: narrow ? 1.65 : 1.9,
-            physics: const NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            children: buttons,
-          );
-        },
+    builder: (context, constraints) {
+      final narrow = constraints.maxWidth < 560;
+      final buttons = <Widget>[
+        _ActionButton(
+          icon: Icons.add_circle_outline_rounded,
+          label: 'Add lesson',
+          onTap: onAddLesson,
+          prominent: true,
+        ),
+        _ActionButton(
+          icon: Icons.groups_outlined,
+          label: 'Students',
+          onTap: () => context.go('/admin/students'),
+        ),
+        _ActionButton(
+          icon: Icons.calendar_month_outlined,
+          label: 'Diary',
+          onTap: () => context.go('/admin/diary'),
+        ),
+        _ActionButton(
+          icon: Icons.event_busy_outlined,
+          label: 'Availability',
+          onTap: () => context.go('/admin/availability'),
+        ),
+      ];
+      return GridView.count(
+        crossAxisCount: narrow ? 2 : 4,
+        mainAxisSpacing: 10,
+        crossAxisSpacing: 10,
+        childAspectRatio: narrow ? 1.65 : 1.9,
+        physics: const NeverScrollableScrollPhysics(),
+        shrinkWrap: true,
+        children: buttons,
       );
+    },
+  );
 }
 
 class _ActionButton extends StatelessWidget {
-  const _ActionButton({required this.icon, required this.label, required this.onTap, this.prominent = false});
+  const _ActionButton({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.prominent = false,
+  });
   final IconData icon;
   final String label;
   final VoidCallback onTap;
@@ -333,36 +451,48 @@ class _ActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Material(
-        color: prominent ? AppColors.primary : AppColors.surfaceHigh,
-        borderRadius: BorderRadius.circular(16),
-        child: InkWell(
-          onTap: onTap,
+    color: prominent ? AppColors.primary : AppColors.surfaceHigh,
+    borderRadius: BorderRadius.circular(16),
+    child: InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          child: Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: prominent ? AppColors.primary : AppColors.outline),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(icon, color: AppColors.textPrimary, size: 25),
-                const SizedBox(height: 7),
-                Text(label,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.labelLarge?.copyWith(color: AppColors.textPrimary, fontWeight: FontWeight.w700)),
-              ],
-            ),
+          border: Border.all(
+            color: prominent ? AppColors.primary : AppColors.outline,
           ),
         ),
-      );
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: AppColors.textPrimary, size: 25),
+            const SizedBox(height: 7),
+            Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
 }
 
 class _SectionHeader extends StatelessWidget {
-  const _SectionHeader({required this.title, this.subtitle, this.action, this.onAction});
+  const _SectionHeader({
+    required this.title,
+    this.subtitle,
+    this.action,
+    this.onAction,
+  });
   final String title;
   final String? subtitle;
   final String? action;
@@ -370,60 +500,69 @@ class _SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
-                if (subtitle != null) ...[
-                  const SizedBox(height: 3),
-                  Text(subtitle!, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textMuted)),
-                ],
-              ],
+    crossAxisAlignment: CrossAxisAlignment.center,
+    children: [
+      Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
             ),
-          ),
-          if (action != null) TextButton(onPressed: onAction, child: Text(action!)),
-        ],
-      );
+            if (subtitle != null) ...[
+              const SizedBox(height: 3),
+              Text(
+                subtitle!,
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: AppColors.textMuted),
+              ),
+            ],
+          ],
+        ),
+      ),
+      if (action != null) TextButton(onPressed: onAction, child: Text(action!)),
+    ],
+  );
 }
 
 class _IconTile extends StatelessWidget {
-  const _IconTile({required this.icon, required this.color, this.large = false});
+  const _IconTile({
+    required this.icon,
+    required this.color,
+    this.large = false,
+  });
   final IconData icon;
   final Color color;
   final bool large;
 
   @override
   Widget build(BuildContext context) => Container(
-        height: large ? 58 : 42,
-        width: large ? 58 : 42,
-        decoration: BoxDecoration(
-          color: color.withAlpha(28),
-          borderRadius: BorderRadius.circular(14),
-        ),
-        alignment: Alignment.center,
-        child: Icon(icon, color: color, size: large ? 29 : 22),
-      );
+    height: large ? 58 : 42,
+    width: large ? 58 : 42,
+    decoration: BoxDecoration(
+      color: color.withAlpha(28),
+      borderRadius: BorderRadius.circular(14),
+    ),
+    alignment: Alignment.center,
+    child: Icon(icon, color: color, size: large ? 29 : 22),
+  );
 }
 
 class _NoLessonsCard extends StatelessWidget {
   const _NoLessonsCard();
 
-
   @override
   Widget build(BuildContext context) => const AppCard(
     child: Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: 12,
-        vertical: 24,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 24),
       child: EmptyState(
         icon: Icons.event_available_outlined,
         title: 'No lessons scheduled today',
-        message:
-        'Your diary is clear. Add a lesson whenever you’re ready.',
+        message: 'Your diary is clear. Add a lesson whenever you’re ready.',
       ),
     ),
   );

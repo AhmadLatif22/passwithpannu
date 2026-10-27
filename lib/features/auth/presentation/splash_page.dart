@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/widgets/brand_logo.dart';
-
 /// Displays the logo while the router resolves the authentication session.
 /// Routing remains controlled by the existing GoRouter redirect logic.
 class SplashPage extends StatefulWidget {
@@ -24,13 +22,11 @@ class _SplashPageState extends State<SplashPage>
       vsync: this,
       duration: const Duration(milliseconds: 850),
     );
-    _opacity = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeOutCubic,
-    );
-    _scale = Tween<double>(begin: 0.90, end: 1).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
-    );
+    _opacity = CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic);
+    _scale = Tween<double>(
+      begin: 0.90,
+      end: 1,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
     _controller.forward();
   }
 

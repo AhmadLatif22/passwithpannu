@@ -52,6 +52,30 @@ class _Body extends ConsumerWidget {
   const _Body({required this.booking});
   final Booking booking;
 
+  Future<void> _decide(
+    BuildContext context,
+    WidgetRef ref,
+    bool approve,
+  ) async {
+    final ok = await confirmDialog(
+      context,
+      title: approve ? 'Approve this booking?' : 'Decline this booking?',
+      message:
+          '${booking.studentName} · ${DateTimeUtils.formatDateTime(booking.start)}\nThe student will be notified.',
+      confirmLabel: approve ? 'Approve booking' : 'Decline request',
+    );
+    if (!ok || !context.mounted) return;
+    await runAdminAction(
+      context,
+      (_) => ref
+          .read(bookingRepositoryProvider)
+          .adminDecide(booking.id, approve: approve),
+      success: approve
+          ? 'Booking approved. Student notified.'
+          : 'Request declined. Student notified.',
+    );
+  }
+
   Future<void> _move(BuildContext context, WidgetRef ref) async {
     final newStart = await pickBusinessDateTime(
       context,
@@ -258,6 +282,36 @@ class _Body extends ConsumerWidget {
                   ),
                 ],
               ),
+              if (booking.status == BookingStatus.pending) ...[
+                const SectionTitle('Pending Approval'),
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 12),
+                  child: Text(
+                    'The student has requested this date and time. Approve or decline the request; it is not yet confirmed.',
+                  ),
+                ),
+                Wrap(
+                  spacing: AppSpacing.sm,
+                  runSpacing: AppSpacing.sm,
+                  children: [
+                    SizedBox(
+                      width: 200,
+                      child: PrimaryButton(
+                        label: 'Approve booking',
+                        onPressed: () => _decide(context, ref, true),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 200,
+                      child: OutlinedButton.icon(
+                        onPressed: () => _decide(context, ref, false),
+                        icon: const Icon(Icons.close),
+                        label: const Text('Decline request'),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
               if (hasOpenRequest) ...[
                 const SizedBox(height: AppSpacing.md),
                 AppCard(
@@ -282,7 +336,7 @@ class _Body extends ConsumerWidget {
                   ),
                 ),
               ],
-              if (active) ...[
+              if (active && booking.status != BookingStatus.pending) ...[
                 const SectionTitle('Actions'),
                 Wrap(
                   spacing: AppSpacing.sm,

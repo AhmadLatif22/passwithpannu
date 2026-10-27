@@ -25,6 +25,14 @@ service cloud.firestore {
         allow read, write: if isAdmin();
       }
 
+      match /termsAcceptances/{acceptanceId} {
+          allow read: if isOwner(uid) || isAdmin();
+          allow create, update, delete: if false;
+        }
+
+        match /devices/{deviceId} {
+          allow read, write: if isOwner(uid);
+        }
 
       // Self-registration can only ever create an ACTIVE STUDENT profile.
       allow create: if isOwner(uid)

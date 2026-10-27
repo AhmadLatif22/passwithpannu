@@ -16,6 +16,7 @@ export {
   adminCancelBooking,
   adminCompleteBooking,
   adminUpdateBooking,
+  adminDecideBooking,
 } from './handlers/bookings';
 
 export {
@@ -34,5 +35,5 @@ export { sendLessonReminders } from './handlers/reminders';
 export { inviteStudent } from './handlers/invitations';
 
 export { acceptStudentTerms } from './handlers/terms';
-
+passwitgh
 export { reverseGeocodePickup } from './handlers/reverse_geocode';

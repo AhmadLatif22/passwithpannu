@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 /// Pass With Pannu — Premium Brand Colour Palette.
@@ -46,11 +45,7 @@ abstract final class AppColors {
   static const LinearGradient cardGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [
-      Color(0xFF142753),
-      Color(0xFF131C32),
-      Color(0xFF192543),
-    ],
+    colors: [Color(0xFF142753), Color(0xFF131C32), Color(0xFF192543)],
     stops: [0, 0.58, 1],
   );
 
@@ -58,29 +53,20 @@ abstract final class AppColors {
   static const LinearGradient backgroundGradient = LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
-    colors: [
-      charcoal,
-      black,
-    ],
+    colors: [charcoal, black],
   );
 
   // Brand button gradient
   static const LinearGradient primaryGradient = LinearGradient(
     begin: Alignment.centerLeft,
     end: Alignment.centerRight,
-    colors: [
-      primaryDark,
-      primary,
-    ],
+    colors: [primaryDark, primary],
   );
 
   // Driving progress gradient
   static const LinearGradient progressGradient = LinearGradient(
     begin: Alignment.centerLeft,
     end: Alignment.centerRight,
-    colors: [
-      primary,
-      accent,
-    ],
+    colors: [primary, accent],
   );
 }

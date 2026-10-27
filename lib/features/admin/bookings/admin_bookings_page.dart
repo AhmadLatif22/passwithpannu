@@ -37,7 +37,8 @@ class _AdminBookingsPageState extends ConsumerState<AdminBookingsPage> {
       (b) => switch (_filter) {
         _Filter.upcoming => b.isUpcoming(now),
         _Filter.requests =>
-          b.status == BookingStatus.changeRequested ||
+          b.status == BookingStatus.pending ||
+              b.status == BookingStatus.changeRequested ||
               b.status == BookingStatus.cancellationRequested,
         _Filter.completed => b.status == BookingStatus.completed,
         _Filter.cancelled =>

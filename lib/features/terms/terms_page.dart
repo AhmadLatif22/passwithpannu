@@ -29,9 +29,13 @@ class _TermsPageState extends State<TermsPage> {
       if (!mounted) return;
       context.go('/home');
     } catch (e) {
+      debugPrint('Terms acceptance failed: $e');
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Could not record acceptance: $e')),
+          const SnackBar(
+            content: Text('Unable to save your acceptance. Please try again.'),
+          ),
         );
       }
     } finally {
@@ -91,11 +95,60 @@ class _TermsPageState extends State<TermsPage> {
                 .snapshots(),
             builder: (context, snap) {
               if (snap.hasError) {
-                return const Text('Acceptance record unavailable.');
+                return FutureBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+                  future: FirebaseFirestore.instance
+                      .collection('users')
+                      .doc(FirebaseAuth.instance.currentUser?.uid)
+                      .get(),
+                  builder: (context, profile) {
+                    if (profile.hasData &&
+                        profile.data!.data()?['termsAccepted'] == true) {
+                      final d = profile.data!.data()!;
+                      final at = d['termsAcceptedAt'];
+                      final date = at is Timestamp
+                          ? at.toDate().toLocal().toString()
+                          : 'Date unavailable';
+                      return ListTile(
+                        title: Text(
+                          'Version ${d['termsVersion'] ?? termsVersion}',
+                        ),
+                        subtitle: Text('Accepted: $date'),
+                      );
+                    }
+                    return const Text(
+                      'Acceptance record is currently unavailable.',
+                    );
+                  },
+                );
               }
               if (!snap.hasData) return const CircularProgressIndicator();
               final records = snap.data!.docs;
-              if (records.isEmpty) return const Text('No acceptance recorded.');
+              if (records.isEmpty) {
+                return FutureBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+                  future: FirebaseFirestore.instance
+                      .collection('users')
+                      .doc(FirebaseAuth.instance.currentUser?.uid)
+                      .get(),
+                  builder: (context, profile) {
+                    if (!profile.hasData) {
+                      return const CircularProgressIndicator();
+                    }
+                    final d = profile.data!.data() ?? {};
+                    if (d['termsAccepted'] != true) {
+                      return const Text('No acceptance recorded.');
+                    }
+                    final at = d['termsAcceptedAt'];
+                    return ListTile(
+                      title: Text(
+                        'Version ${d['termsVersion'] ?? termsVersion}',
+                      ),
+                      subtitle: Text(
+                        'Accepted: ${at is Timestamp ? at.toDate().toLocal() : 'Date unavailable'}',
+                      ),
+                    );
+                  },
+                );
+              }
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: records.map((r) {

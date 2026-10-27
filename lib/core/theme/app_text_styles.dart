@@ -6,10 +6,7 @@ import 'app_colors.dart';
 /// Typography mirrors the website: Playfair Display (serif) for headings,
 /// Outfit (geometric sans) for body copy. Verify against the site's CSS.
 abstract final class AppTextStyles {
-  static TextStyle _heading(
-      double size, {
-        FontWeight w = FontWeight.w800,
-      }) =>
+  static TextStyle _heading(double size, {FontWeight w = FontWeight.w800}) =>
       GoogleFonts.plusJakartaSans(
         fontSize: size,
         fontWeight: w,
@@ -18,16 +15,15 @@ abstract final class AppTextStyles {
       );
 
   static TextStyle _body(
-      double size, {
-        FontWeight w = FontWeight.w400,
-        Color? c,
-      }) =>
-      GoogleFonts.dmSans(
-        fontSize: size,
-        fontWeight: w,
-        color: c ?? AppColors.textSecondary,
-        height: 1.45,
-      );
+    double size, {
+    FontWeight w = FontWeight.w400,
+    Color? c,
+  }) => GoogleFonts.dmSans(
+    fontSize: size,
+    fontWeight: w,
+    color: c ?? AppColors.textSecondary,
+    height: 1.45,
+  );
 
   static TextStyle get displayLarge => _heading(40);
   static TextStyle get headlineLarge => _heading(30);

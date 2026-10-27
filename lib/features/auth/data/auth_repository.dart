@@ -12,16 +12,36 @@ class AuthRepository {
   final FcmService _fcm;
 
   /// Emits on sign-in/out and token refresh. `isAdmin` is read from the verified token claim.
-  Stream<AuthSession?> watchSession() =>
-      _auth.idTokenChanges().asyncMap((user) async {
-        if (user == null) return null;
+
+  Stream<AuthSession?> watchSession() {
+    AuthSession? lastSession;
+
+    return _auth.idTokenChanges().asyncMap((user) async {
+      if (user == null) {
+        lastSession = null;
+        return null;
+      }
+
+      try {
         final token = await user.getIdTokenResult();
-        return AuthSession(
+
+        final session = AuthSession(
           uid: user.uid,
           email: user.email,
           isAdmin: token.claims?['admin'] == true,
         );
-      });
+
+        lastSession = session;
+        return session;
+      } catch (error) {
+        if (lastSession != null && lastSession!.uid == user.uid) {
+          return lastSession;
+        }
+
+        rethrow;
+      }
+    });
+  }
 
   Stream<AppUser?> watchProfile(String uid) => _db
       .collection('users')
@@ -106,7 +126,14 @@ class AuthRepository {
   }
 
   Future<void> signOut(String? uid) async {
-    if (uid != null) await _fcm.unregister(uid);
-    await _auth.signOut();
+    try {
+      if (uid != null) {
+        await _fcm.unregister(uid).timeout(const Duration(seconds: 3));
+      }
+    } catch (_) {
+      // Notification cleanup must not prevent Firebase Auth sign-out.
+    } finally {
+      await _auth.signOut();
+    }
   }
 }

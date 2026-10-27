@@ -83,6 +83,12 @@ class BookingRepository {
     {'bookingId': bookingId, 'reason': reason},
   );
 
+  Future<void> adminDecide(String bookingId, {required bool approve}) =>
+      _fn.call('adminDecideBooking', {
+        'bookingId': bookingId,
+        'decision': approve ? 'approve' : 'decline',
+      });
+
   Future<void> adminComplete(String bookingId) =>
       _fn.call('adminCompleteBooking', {'bookingId': bookingId});
 

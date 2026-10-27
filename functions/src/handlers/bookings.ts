@@ -87,7 +87,7 @@ async function createBookingCore(opts: {
     if (!pre.ok) throw slotError(pre.reason);
   }
 
-  const status: BookingStatus = opts.forceConfirmed || !settings.requireAdminApproval ? 'confirmed' : 'pending';
+  const status: BookingStatus = opts.forceConfirmed ? 'confirmed' : 'pending';
   const ref = db.collection('bookings').doc();
   const refCode = reference();
 
@@ -383,4 +383,46 @@ export const adminUpdateBooking = onCall({ secrets: SECRETS }, async (req) => {
     tx.update(bookingRef, { ...patch, updatedAt: FieldValue.serverTimestamp(), updatedBy: adminUid });
   });
   return { ok: true };
+});
+
+
+/** Instructor-only initial booking decision. Student bookings always start pending. */
+export const adminDecideBooking = onCall(async (req) => {
+  const adminUid = requireAdmin(req);
+  const bookingId = str(req.data, 'bookingId', 128);
+  const decision = enumOf(req.data, 'decision', ['approve', 'decline'] as const);
+  const bookingRef = db.collection('bookings').doc(bookingId);
+  const result = await db.runTransaction(async (tx) => {
+    const snap = await tx.get(bookingRef);
+    if (!snap.exists) throw appError('not-found', 'booking_not_found', 'Booking not found.');
+    const b = snap.data()!;
+    if (b.status !== 'pending') {
+      throw appError('failed-precondition', 'already_reviewed', 'This request has already been reviewed.');
+    }
+    const status: BookingStatus = decision === 'approve' ? 'confirmed' : 'rejected';
+    tx.update(bookingRef, {
+      status,
+      updatedBy: adminUid,
+      updatedAt: FieldValue.serverTimestamp(),
+      reviewedAt: FieldValue.serverTimestamp(),
+      reviewedBy: adminUid,
+    });
+    return {
+      studentId: b.studentId as string,
+      lessonType: b.lessonType as string,
+      start: (b.startDateTime as Timestamp).toDate(),
+      status,
+    };
+  });
+  const settings = await loadSettings();
+  const when = formatDayTime(result.start, settings.timezone);
+  await notifyUser(result.studentId, {
+    title: decision === 'approve' ? 'Lesson confirmed' : 'Booking request declined',
+    body: decision === 'approve'
+      ? `Your ${result.lessonType} lesson on ${when} has been approved by your instructor.`
+      : `Your ${result.lessonType} lesson request for ${when} was declined. Please contact your instructor.`,
+    type: decision === 'approve' ? 'booking_confirmed' : 'request_rejected',
+    bookingId,
+  });
+  return { ok: true, status: result.status };
 });

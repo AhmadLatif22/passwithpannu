@@ -43,7 +43,7 @@ Any valid outstanding cancellation charges must be resolved before further booki
 Block Booking Payments
 All block bookings must be paid in full before or at the start of the first lesson included in the block.
 Block Booking Validity
-Block bookings are normally expected to be completed within approximately five weeks. However, Pass With Pannu provides students with an extended validity period of 90 days from the date of purchase to complete their prepaid lessons.
+Block bookings are normally expected to be completed within approximately five weeks. However, Pass With Pannu provides students with an extended validity period of 2 calendar months from the date of purchase to complete their prepaid lessons.
 Students are responsible for arranging and attending their lessons within this period, subject to instructor availability.
 Unused lesson hours remaining after the 90-day validity period will normally expire and will not be refundable, except where required by law or where Pass With Pannu agrees otherwise due to exceptional circumstances.
 Where Pass With Pannu is unable to provide reasonable opportunities for the student to complete their prepaid lessons within the validity period, an appropriate extension or refund will be offered.

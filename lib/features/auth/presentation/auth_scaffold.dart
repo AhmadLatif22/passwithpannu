@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../../core/constants/app_constants.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../core/widgets/brand_logo.dart';
 
 class AuthScaffold extends StatelessWidget {
   const AuthScaffold({
@@ -35,9 +34,9 @@ class AuthScaffold extends StatelessWidget {
                   children: [
                     Center(
                       child: Image.asset(
-                        'assets/images/pwp_logo.png',
+                        'assets/images/pwp_logo-2.png',
                         width: 170,
-                        height: 110,
+                        height: 150,
                         fit: BoxFit.cover,
                       ),
                     ),

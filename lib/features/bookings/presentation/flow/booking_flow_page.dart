@@ -46,10 +46,14 @@ class _BookingFlowPageState extends ConsumerState<BookingFlowPage> {
     if (!mounted) return;
     final state = ref.read(bookingSubmitProvider);
     if (result != null) {
-      ref.read(bookingFlowProvider.notifier).reset();
-      submit.reset();
-      setState(() => _step = 0);
+      // Leave the review screen before clearing the draft it depends on.
       context.go('/book/confirmation/${result.bookingId}');
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        setState(() => _step = 0);
+        ref.read(bookingFlowProvider.notifier).reset();
+        ref.read(bookingSubmitProvider.notifier).reset();
+      });
     } else if (state.hasError) {
       final failure = AppFailure.from(state.error!);
       // The slot was taken (or no longer valid) while reviewing: refresh and send them back to pick again.
@@ -88,7 +92,7 @@ class _BookingFlowPageState extends ConsumerState<BookingFlowPage> {
     };
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Book a lesson')),
+      appBar: AppBar(title: const Text('Request a Lesson')),
       body: SafeArea(
         child: Column(
           children: [
@@ -168,7 +172,7 @@ class _BookingFlowPageState extends ConsumerState<BookingFlowPage> {
                         flex: 2,
                         child: PrimaryButton(
                           label: _step == _labels.length - 1
-                              ? 'Confirm booking'
+                              ? 'Submit Request'
                               : 'Continue',
                           isLoading: submitting,
                           onPressed: _canContinue(draft)

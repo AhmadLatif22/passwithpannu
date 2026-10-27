@@ -13,18 +13,28 @@ import 'availability_providers.dart';
 /// Address search with autocomplete (via the Cloud Functions proxy) that resolves to
 /// coordinates, which the travel-time check needs. Quick-pick chips reuse past addresses.
 class PickupAutocompleteField extends ConsumerStatefulWidget {
-  const PickupAutocompleteField({super.key, required this.onSelected, this.initial, this.recent = const [], this.onCleared});
+  const PickupAutocompleteField({
+    super.key,
+    required this.onSelected,
+    this.initial,
+    this.recent = const [],
+    this.onCleared,
+  });
   final ValueChanged<PickupLocation> onSelected;
   final VoidCallback? onCleared;
   final PickupLocation? initial;
   final List<PickupLocation> recent;
 
   @override
-  ConsumerState<PickupAutocompleteField> createState() => _PickupAutocompleteFieldState();
+  ConsumerState<PickupAutocompleteField> createState() =>
+      _PickupAutocompleteFieldState();
 }
 
-class _PickupAutocompleteFieldState extends ConsumerState<PickupAutocompleteField> {
-  late final TextEditingController _c = TextEditingController(text: widget.initial?.address ?? '');
+class _PickupAutocompleteFieldState
+    extends ConsumerState<PickupAutocompleteField> {
+  late final TextEditingController _c = TextEditingController(
+    text: widget.initial?.address ?? '',
+  );
   final _focus = FocusNode();
   Timer? _debounce;
   String _session = PlacesRepository.newSessionToken();
@@ -77,7 +87,10 @@ class _PickupAutocompleteFieldState extends ConsumerState<PickupAutocompleteFiel
       });
       return;
     }
-    _debounce = Timer(const Duration(milliseconds: 350), () => _search(text.trim()));
+    _debounce = Timer(
+      const Duration(milliseconds: 350),
+      () => _search(text.trim()),
+    );
   }
 
   Future<void> _search(String text) async {
@@ -86,7 +99,9 @@ class _PickupAutocompleteFieldState extends ConsumerState<PickupAutocompleteFiel
       _error = null;
     });
     try {
-      final r = await ref.read(placesRepositoryProvider).autocomplete(text, _session);
+      final r = await ref
+          .read(placesRepositoryProvider)
+          .autocomplete(text, _session);
       if (!mounted) return;
       setState(() {
         _suggestions = r;
@@ -104,8 +119,11 @@ class _PickupAutocompleteFieldState extends ConsumerState<PickupAutocompleteFiel
   Future<void> _pick(PlaceSuggestion s) async {
     setState(() => _loading = true);
     try {
-      final loc = await ref.read(placesRepositoryProvider).details(s.placeId, _session);
-      _session = PlacesRepository.newSessionToken(); // a session ends once a place is chosen
+      final loc = await ref
+          .read(placesRepositoryProvider)
+          .details(s.placeId, _session);
+      _session =
+          PlacesRepository.newSessionToken(); // a session ends once a place is chosen
       if (!mounted) return;
       _c.text = loc.address;
       _focus.unfocus();
@@ -151,15 +169,24 @@ class _PickupAutocompleteFieldState extends ConsumerState<PickupAutocompleteFiel
             suffixIcon: _loading
                 ? const Padding(
                     padding: EdgeInsets.all(14),
-                    child: SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)),
+                    child: SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
                   )
-                : (_selected != null ? const Icon(Icons.check_circle, color: AppColors.success) : null),
+                : (_selected != null
+                      ? const Icon(Icons.check_circle, color: AppColors.success)
+                      : null),
           ),
         ),
         if (_error != null)
           Padding(
             padding: const EdgeInsets.only(top: 8),
-            child: Text(_error!, style: t.bodySmall?.copyWith(color: AppColors.error)),
+            child: Text(
+              _error!,
+              style: t.bodySmall?.copyWith(color: AppColors.error),
+            ),
           ),
         if (_suggestions.isNotEmpty)
           Container(
@@ -174,7 +201,11 @@ class _PickupAutocompleteFieldState extends ConsumerState<PickupAutocompleteFiel
                 for (final s in _suggestions)
                   ListTile(
                     dense: true,
-                    leading: const Icon(Icons.location_on_outlined, color: AppColors.accent, size: 20),
+                    leading: const Icon(
+                      Icons.location_on_outlined,
+                      color: AppColors.accent,
+                      size: 20,
+                    ),
                     title: Text(s.description, style: t.bodyMedium),
                     onTap: () => _pick(s),
                   ),

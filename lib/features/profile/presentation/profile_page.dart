@@ -15,7 +15,6 @@ import '../../../core/widgets/secondary_button.dart';
 import '../../auth/domain/app_user.dart';
 import '../../auth/presentation/auth_providers.dart';
 import 'package:go_router/go_router.dart';
-import '../../../app/app_mode.dart';
 
 class ProfilePage extends ConsumerWidget {
   const ProfilePage({super.key});
@@ -63,19 +62,6 @@ class ProfilePage extends ConsumerWidget {
                       ),
                     ),
                   ],
-                  if (ref.watch(isAdminProvider)) ...[
-                    PrimaryButton(
-                      label: 'Switch to admin dashboard',
-                      icon: Icons.admin_panel_settings_outlined,
-                      onPressed: () {
-                        ref.read(adminViewAsStudentProvider.notifier).state =
-                            false;
-                        context.go('/admin');
-                      },
-                    ),
-                    const SizedBox(height: 10),
-                  ],
-
                   SecondaryButton(
                     label: 'Sign out',
                     icon: Icons.logout,

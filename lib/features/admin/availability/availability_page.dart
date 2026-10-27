@@ -69,58 +69,73 @@ class AvailabilityPage extends ConsumerWidget {
                     onRetry: () => ref.invalidate(blocksProvider),
                     data: (blocks) => blocks.isEmpty
                         ? const AppCard(
-                      child: Text('Nothing blocked. Use “Block time” to add holidays or appointments.'),
-                    )
+                            child: Text(
+                              'Nothing blocked. Use “Block time” to add holidays or appointments.',
+                            ),
+                          )
                         : Column(
-                      children: [
-                        for (final b in blocks)
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                            child: AppCard(
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.block, color: AppColors.warning),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              for (final b in blocks)
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                    bottom: AppSpacing.sm,
+                                  ),
+                                  child: AppCard(
+                                    child: Row(
                                       children: [
-                                        Text(
-                                          b.reason.isEmpty ? 'Blocked' : b.reason,
-                                          style: t.titleSmall,
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
+                                        const Icon(
+                                          Icons.block,
+                                          color: AppColors.warning,
                                         ),
-                                        Text(
-                                          '${DateTimeUtils.formatDateTime(b.start)}  →  ${DateTimeUtils.formatDateTime(b.end)}',
-                                          style: t.bodyMedium,
-                                          softWrap: true,
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                b.reason.isEmpty
+                                                    ? 'Blocked'
+                                                    : b.reason,
+                                                style: t.titleSmall,
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                              Text(
+                                                '${DateTimeUtils.formatDateTime(b.start)}  →  ${DateTimeUtils.formatDateTime(b.end)}',
+                                                style: t.bodyMedium,
+                                                softWrap: true,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        IconButton(
+                                          tooltip: 'Open this time again',
+                                          icon: const Icon(
+                                            Icons.delete_outline,
+                                          ),
+                                          onPressed: () async {
+                                            final ok = await confirmDialog(
+                                              context,
+                                              title: 'Reopen this time?',
+                                              message:
+                                                  'Students will be able to book it again.',
+                                              confirmLabel: 'Reopen',
+                                              cancelLabel: 'Keep blocked',
+                                            );
+                                            if (ok && context.mounted) {
+                                              await ref
+                                                  .read(blockRepositoryProvider)
+                                                  .remove(b.id);
+                                            }
+                                          },
                                         ),
                                       ],
                                     ),
                                   ),
-                                  IconButton(
-                                    tooltip: 'Open this time again',
-                                    icon: const Icon(Icons.delete_outline),
-                                    onPressed: () async {
-                                      final ok = await confirmDialog(
-                                        context,
-                                        title: 'Reopen this time?',
-                                        message: 'Students will be able to book it again.',
-                                        confirmLabel: 'Reopen',
-                                        cancelLabel: 'Keep blocked',
-                                      );
-                                      if (ok && context.mounted) {
-                                        await ref.read(blockRepositoryProvider).remove(b.id);
-                                      }
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ),
+                                ),
+                            ],
                           ),
-                      ],
-                    ),
                   ),
                   const SizedBox(height: 84),
                 ],
@@ -199,18 +214,18 @@ class _BlockFormState extends ConsumerState<_BlockForm> {
     final clashes = (ref.read(adminBookingsProvider).valueOrNull ?? const [])
         .where(
           (b) =>
-      b.status.occupiesSlot &&
-          b.start.isBefore(end) &&
-          b.end.isAfter(start),
-    )
+              b.status.occupiesSlot &&
+              b.start.isBefore(end) &&
+              b.end.isAfter(start),
+        )
         .length;
     if (clashes > 0) {
       final ok = await confirmDialog(
         context,
         title:
-        '$clashes lesson${clashes == 1 ? '' : 's'} already in this period',
+            '$clashes lesson${clashes == 1 ? '' : 's'} already in this period',
         message:
-        'Blocking won’t cancel or move them. You’ll need to handle them yourself. Block anyway?',
+            'Blocking won’t cancel or move them. You’ll need to handle them yourself. Block anyway?',
         confirmLabel: 'Block anyway',
         cancelLabel: 'Go back',
       );
@@ -225,11 +240,11 @@ class _BlockFormState extends ConsumerState<_BlockForm> {
       await ref
           .read(blockRepositoryProvider)
           .add(
-        start: start,
-        end: end,
-        reason: _reason.text.trim(),
-        adminUid: uid,
-      );
+            start: start,
+            end: end,
+            reason: _reason.text.trim(),
+            adminUid: uid,
+          );
       if (mounted) {
         Navigator.pop(context);
         showSnack(context, 'Time blocked. Students no longer see it.');
@@ -388,13 +403,13 @@ class _BlockFormState extends ConsumerState<_BlockForm> {
   }
 }
 
-
 class _WorkingHoursEditor extends ConsumerStatefulWidget {
   const _WorkingHoursEditor({super.key, required this.initial});
   final AppSettings initial;
 
   @override
-  ConsumerState<_WorkingHoursEditor> createState() => _WorkingHoursEditorState();
+  ConsumerState<_WorkingHoursEditor> createState() =>
+      _WorkingHoursEditorState();
 }
 
 class _WorkingHoursEditorState extends ConsumerState<_WorkingHoursEditor> {
@@ -402,8 +417,13 @@ class _WorkingHoursEditorState extends ConsumerState<_WorkingHoursEditor> {
   bool _saving = false;
 
   static const _days = [
-    'Monday', 'Tuesday', 'Wednesday', 'Thursday',
-    'Friday', 'Saturday', 'Sunday',
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+    'Sunday',
   ];
 
   TimeOfDay _parse(String hm) {
@@ -434,8 +454,13 @@ class _WorkingHoursEditorState extends ConsumerState<_WorkingHoursEditor> {
   Future<void> _save() async {
     for (final entry in _hours.entries) {
       final day = entry.value;
-      if (day != null && _minutes(_parse(day.end)) <= _minutes(_parse(day.start))) {
-        showSnack(context, '${_days[entry.key - 1]}: finish time must be after start.', error: true);
+      if (day != null &&
+          _minutes(_parse(day.end)) <= _minutes(_parse(day.start))) {
+        showSnack(
+          context,
+          '${_days[entry.key - 1]}: finish time must be after start.',
+          error: true,
+        );
         return;
       }
     }
@@ -443,12 +468,23 @@ class _WorkingHoursEditorState extends ConsumerState<_WorkingHoursEditor> {
     try {
       // Preserve booking-rule fields saved on the separate Settings screen.
       final latest = ref.read(settingsProvider).valueOrNull ?? widget.initial;
-      await ref.read(settingsRepositoryProvider).save(
-        latest.copyWith(workingHours: {..._hours}),
-      );
-      if (mounted) showSnack(context, 'Working hours saved. Availability updates immediately.');
+      await ref
+          .read(settingsRepositoryProvider)
+          .save(latest.copyWith(workingHours: {..._hours}));
+      if (mounted) {
+        showSnack(
+          context,
+          'Working hours saved. Availability updates immediately.',
+        );
+      }
     } catch (_) {
-      if (mounted) showSnack(context, 'Couldn’t save working hours. Please try again.', error: true);
+      if (mounted) {
+        showSnack(
+          context,
+          'Couldn’t save working hours. Please try again.',
+          error: true,
+        );
+      }
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -481,21 +517,21 @@ class _WorkingHoursEditorState extends ConsumerState<_WorkingHoursEditor> {
           onChanged: _saving
               ? null
               : (on) => setState(() {
-            _hours[day] = on ? const WorkingDay('08:00', '18:00') : null;
-          }),
+                  _hours[day] = on ? const WorkingDay('08:00', '18:00') : null;
+                }),
         );
         final times = wh == null
             ? Text('Not working', style: t.bodySmall)
             : Row(
-          children: [
-            Expanded(child: _timeButton(day, true)),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8),
-              child: Text('–'),
-            ),
-            Expanded(child: _timeButton(day, false)),
-          ],
-        );
+                children: [
+                  Expanded(child: _timeButton(day, true)),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8),
+                    child: Text('–'),
+                  ),
+                  Expanded(child: _timeButton(day, false)),
+                ],
+              );
 
         if (compact) {
           return Padding(
@@ -503,7 +539,12 @@ class _WorkingHoursEditorState extends ConsumerState<_WorkingHoursEditor> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Row(children: [Expanded(child: dayLabel), toggle]),
+                Row(
+                  children: [
+                    Expanded(child: dayLabel),
+                    toggle,
+                  ],
+                ),
                 const SizedBox(height: 5),
                 times,
               ],

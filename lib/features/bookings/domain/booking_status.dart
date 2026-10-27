@@ -16,7 +16,7 @@ enum BookingStatus {
       );
 
   String get label => switch (this) {
-    BookingStatus.pending => 'Pending',
+    BookingStatus.pending => 'Pending Approval',
     BookingStatus.confirmed => 'Confirmed',
     BookingStatus.changeRequested => 'Change requested',
     BookingStatus.cancellationRequested => 'Cancellation requested',

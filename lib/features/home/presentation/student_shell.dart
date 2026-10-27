@@ -13,10 +13,21 @@ class StudentShell extends StatelessWidget {
       body: navigationShell,
       bottomNavigationBar: NavigationBar(
         selectedIndex: navigationShell.currentIndex,
-        onDestinationSelected: (i) => navigationShell.goBranch(
-          i,
-          initialLocation: i == navigationShell.currentIndex,
-        ),
+
+        onDestinationSelected: (index) {
+          const routes = [
+            '/home',
+            '/book',
+            '/lessons',
+            '/progress',
+            '/profile',
+          ];
+
+          if (index < 0 || index >= routes.length) return;
+
+          context.go(routes[index]);
+        },
+
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.home_outlined),

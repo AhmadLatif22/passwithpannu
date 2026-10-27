@@ -14,13 +14,14 @@ class AppFailure implements Exception {
 
   bool get isSlotUnavailable => code == 'slot_unavailable';
 
-  /// Conflicts an admin may knowingly override (never overlap with another lesson).
+  /// Scheduling conflicts an instructor can deliberately override after a warning.
   bool get isOverridable =>
       isSlotUnavailable &&
       const {
         'travel_before',
         'travel_after',
         'blocked',
+        'overlap',
         'outside_hours',
         'too_soon',
         'misaligned',
@@ -61,7 +62,7 @@ class AppFailure implements Exception {
     'travel_after':
         'That time doesn’t leave enough travel time before the next lesson.',
     'blocked': 'The instructor isn’t available at that time.',
-    'overlap': 'That time was just taken. Please choose another slot.',
+    'overlap': 'This lesson overlaps another booking. You can go back or explicitly override the conflict.',
     'in_past': 'That time has already passed.',
     'too_soon': 'That time is too soon. Please choose a later slot.',
     'too_far_ahead': 'That date is too far ahead to book yet.',

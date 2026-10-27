@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/app_constants.dart';
-import '../../../app/app_mode.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/brand_logo.dart';
 import '../../../core/widgets/dialogs.dart';
@@ -87,13 +86,6 @@ class AdminShell extends ConsumerWidget {
           : i;
     }
 
-    IconButton(
-      tooltip: 'Switch to student view',
-      onPressed: () =>
-          ref.read(adminViewAsStudentProvider.notifier).state = true,
-      icon: const Icon(Icons.swap_horiz),
-    );
-
     Future<void> signOut() async {
       final ok = await confirmDialog(
         context,
@@ -102,7 +94,17 @@ class AdminShell extends ConsumerWidget {
         confirmLabel: 'Sign out',
         cancelLabel: 'Stay signed in',
       );
-      if (ok) await ref.read(authControllerProvider.notifier).signOut();
+      if (!ok) return;
+      try {
+        await ref.read(authControllerProvider.notifier).signOut();
+        if (context.mounted) context.go('/login');
+      } catch (error) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Unable to sign out: $error')));
+        }
+      }
     }
 
     if (width >= AppBreakpoints.tablet) {
@@ -205,33 +207,26 @@ class AdminShell extends ConsumerWidget {
                             context.go(_dests[k].path);
                           },
                         ),
-                      ListTile(
-                        leading: Badge(
-                          isLabelVisible: unread > 0,
-                          label: Text('$unread'),
-                          child: const Icon(Icons.notifications_outlined),
-                        ),
-                        title: const Text('Notifications'),
-                        onTap: () {
-                          Navigator.pop(ctx);
-                          context.go('/admin/notifications');
-                        },
-                      ),
+                      // ListTile(
+                      //   leading: Badge(
+                      //     isLabelVisible: unread > 0,
+                      //     label: Text('$unread'),
+                      //     child: const Icon(Icons.notifications_outlined),
+                      //   ),
+                      //   title: const Text('Notifications'),
+                      //   onTap: () {
+                      //     Navigator.pop(ctx);
+                      //     context.go('/admin/notifications');
+                      //   },
+                      // ),
                       ListTile(
                         leading: const Icon(Icons.logout),
                         title: const Text('Sign out'),
                         onTap: () {
                           Navigator.pop(ctx);
-                          signOut();
-                        },
-                      ),
-                      ListTile(
-                        leading: const Icon(Icons.swap_horiz),
-                        title: const Text('Switch to student view'),
-                        onTap: () {
-                          Navigator.pop(ctx);
-                          ref.read(adminViewAsStudentProvider.notifier).state =
-                              true;
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            if (context.mounted) signOut();
+                          });
                         },
                       ),
                     ],

@@ -44,10 +44,9 @@ class _StepPickupState extends ConsumerState<StepPickup> {
       _mapError = null;
     });
     try {
-      final location = await ref.read(placesRepositoryProvider).reverseGeocode(
-        point.latitude,
-        point.longitude,
-      );
+      final location = await ref
+          .read(placesRepositoryProvider)
+          .reverseGeocode(point.latitude, point.longitude);
       if (!mounted || id != _requestId) return;
       ref.read(bookingFlowProvider.notifier).setPickup(location);
       setState(() {
@@ -59,7 +58,8 @@ class _StepPickupState extends ConsumerState<StepPickup> {
       setState(() {
         _resolving = false;
         _pendingPoint = null;
-        _mapError = 'Could not identify this address. Try a nearby point or use search.';
+        _mapError =
+            'Could not identify this address. Try a nearby point or use search.';
       });
     }
   }
@@ -72,23 +72,30 @@ class _StepPickupState extends ConsumerState<StepPickup> {
       _mapError = null;
     });
     ref.read(bookingFlowProvider.notifier).setPickup(location);
-    _mapController?.animateCamera(CameraUpdate.newLatLngZoom(
-      LatLng(location.lat, location.lng), 17,
-    ));
+    _mapController?.animateCamera(
+      CameraUpdate.newLatLngZoom(LatLng(location.lat, location.lng), 17),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final t = Theme.of(context).textTheme;
-    final pickup = ref.watch(bookingFlowProvider.select((draft) => draft.pickup));
+    final pickup = ref.watch(
+      bookingFlowProvider.select((draft) => draft.pickup),
+    );
     final past = ref.watch(studentBookingsProvider).valueOrNull ?? const [];
     final seen = <String>{};
     final recent = <PickupLocation>[
       for (final b in past.reversed)
         if (b.pickupLat != 0 && seen.add(b.pickupAddress))
-          PickupLocation(address: b.pickupAddress, lat: b.pickupLat, lng: b.pickupLng),
+          PickupLocation(
+            address: b.pickupAddress,
+            lat: b.pickupLat,
+            lng: b.pickupLng,
+          ),
     ].take(3).toList();
-    final position = _pendingPoint ??
+    final position =
+        _pendingPoint ??
         (pickup == null ? _derby : LatLng(pickup.lat, pickup.lng));
 
     return ListView(
@@ -96,7 +103,10 @@ class _StepPickupState extends ConsumerState<StepPickup> {
       children: [
         Text('Where should we pick you up?', style: t.headlineMedium),
         const SizedBox(height: 8),
-        Text('Search your address or press and hold the map to drop a pin. Pinch to zoom or use the + / − controls.', style: t.bodyMedium),
+        Text(
+          'Search your address or press and hold the map to drop a pin. Pinch to zoom or use the + / − controls.',
+          style: t.bodyMedium,
+        ),
         const SizedBox(height: AppSpacing.lg),
         PickupAutocompleteField(
           initial: pickup,
@@ -115,7 +125,10 @@ class _StepPickupState extends ConsumerState<StepPickup> {
             child: Stack(
               children: [
                 GoogleMap(
-                  initialCameraPosition: CameraPosition(target: position, zoom: pickup == null ? 13 : 17),
+                  initialCameraPosition: CameraPosition(
+                    target: position,
+                    zoom: pickup == null ? 13 : 17,
+                  ),
                   onMapCreated: (controller) => _mapController = controller,
                   onLongPress: _chooseOnMap,
                   zoomControlsEnabled: true,
@@ -131,7 +144,9 @@ class _StepPickupState extends ConsumerState<StepPickup> {
                         markerId: const MarkerId('pickup_location'),
                         position: position,
                         infoWindow: InfoWindow(
-                          title: _pendingPoint != null ? 'Finding address…' : 'Pickup location',
+                          title: _pendingPoint != null
+                              ? 'Finding address…'
+                              : 'Pickup location',
                           snippet: pickup?.address,
                         ),
                       ),
@@ -145,11 +160,19 @@ class _StepPickupState extends ConsumerState<StepPickup> {
                     child: Card(
                       child: Padding(
                         padding: EdgeInsets.all(12),
-                        child: Row(children: [
-                          SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)),
-                          SizedBox(width: 12),
-                          Expanded(child: Text('Finding the pinned address…')),
-                        ]),
+                        child: Row(
+                          children: [
+                            SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                            SizedBox(width: 12),
+                            Expanded(
+                              child: Text('Finding the pinned address…'),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -158,17 +181,29 @@ class _StepPickupState extends ConsumerState<StepPickup> {
           ),
         ),
         const SizedBox(height: 14),
-        if (_mapError != null) Text(_mapError!, style: t.bodySmall?.copyWith(color: AppColors.error)),
+        if (_mapError != null)
+          Text(
+            _mapError!,
+            style: t.bodySmall?.copyWith(color: AppColors.error),
+          ),
         if (pickup != null) ...[
-          Row(children: [
-            const Icon(Icons.location_on_outlined, color: AppColors.accent),
-            const SizedBox(width: 8),
-            Expanded(child: Text(pickup.address, style: t.bodyMedium)),
-          ]),
+          Row(
+            children: [
+              const Icon(Icons.location_on_outlined, color: AppColors.accent),
+              const SizedBox(width: 8),
+              Expanded(child: Text(pickup.address, style: t.bodyMedium)),
+            ],
+          ),
           const SizedBox(height: 6),
-          Text('Pickup location confirmed — tap Continue to choose a date.', style: t.bodySmall),
+          Text(
+            'Pickup location confirmed — tap Continue to choose a date.',
+            style: t.bodySmall,
+          ),
         ] else if (!_resolving)
-          Text('Long-press the map or select an address to continue.', style: t.bodySmall),
+          Text(
+            'Long-press the map or select an address to continue.',
+            style: t.bodySmall,
+          ),
       ],
     );
   }

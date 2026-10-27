@@ -66,9 +66,12 @@ class _SettingsFormState extends ConsumerState<_SettingsForm> {
         .map((e) => int.tryParse(e.trim()))
         .toList();
 
-    if (buffer == null || buffer < 0 ||
-        notice == null || notice < 0 ||
-        minBook == null || minBook < 0 ||
+    if (buffer == null ||
+        buffer < 0 ||
+        notice == null ||
+        notice < 0 ||
+        minBook == null ||
+        minBook < 0 ||
         offsets.isEmpty ||
         offsets.any((o) => o == null || o <= 0)) {
       showSnack(
@@ -84,21 +87,27 @@ class _SettingsFormState extends ConsumerState<_SettingsForm> {
       // Use the freshest available settings so saving this screen does not
       // revert working-hour changes made on the Availability screen.
       final latest = ref.read(settingsProvider).valueOrNull ?? widget.initial;
-      await ref.read(settingsRepositoryProvider).save(
-        latest.copyWith(
-          travelBufferMinutes: buffer,
-          studentChangeNoticeHours: notice,
-          minBookingNoticeHours: minBook,
-          reminderOffsetsHours: offsets.cast<int>(),
-          requireAdminApproval: _approval,
-        ),
-      );
+      await ref
+          .read(settingsRepositoryProvider)
+          .save(
+            latest.copyWith(
+              travelBufferMinutes: buffer,
+              studentChangeNoticeHours: notice,
+              minBookingNoticeHours: minBook,
+              reminderOffsetsHours: offsets.cast<int>(),
+              requireAdminApproval: _approval,
+            ),
+          );
       if (mounted) {
         showSnack(context, 'Settings saved successfully.');
       }
     } catch (_) {
       if (mounted) {
-        showSnack(context, 'Couldn’t save settings. Please try again.', error: true);
+        showSnack(
+          context,
+          'Couldn’t save settings. Please try again.',
+          error: true,
+        );
       }
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -123,7 +132,8 @@ class _SettingsFormState extends ConsumerState<_SettingsForm> {
                       controller: _buffer,
                       keyboardType: TextInputType.number,
                       decoration: const InputDecoration(
-                        labelText: 'Extra travel buffer between lessons (minutes)',
+                        labelText:
+                            'Extra travel buffer between lessons (minutes)',
                         helperText: 'Added on top of the driving time',
                       ),
                     ),
@@ -141,14 +151,16 @@ class _SettingsFormState extends ConsumerState<_SettingsForm> {
                       keyboardType: TextInputType.number,
                       decoration: const InputDecoration(
                         labelText:
-                        'Notice needed for student change/cancel requests (hours)',
+                            'Notice needed for student change/cancel requests (hours)',
                       ),
                     ),
                     const SizedBox(height: 6),
                     SwitchListTile(
                       contentPadding: EdgeInsets.zero,
                       title: const Text('Approve new bookings manually'),
-                      subtitle: const Text('Off: bookings are confirmed instantly'),
+                      subtitle: const Text(
+                        'Off: bookings are confirmed instantly',
+                      ),
                       value: _approval,
                       onChanged: (v) => setState(() => _approval = v),
                     ),
